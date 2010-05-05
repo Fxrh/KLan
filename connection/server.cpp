@@ -45,9 +45,10 @@ Server::~Server()
 void Server::startServer(quint16 port)
 {
   if( m_started ){
-    m_port = port;
-    m_started = false;
+    stopServer();
   }
+  m_port = port;
+  m_started = false;
   startServer();
 }
 
@@ -58,6 +59,7 @@ void Server::startServer()
   }
   if( m_server->listen(QHostAddress::Any, m_port) ){
     m_started = true;
+    kDebug() << "Started.";
   } else {
     kWarning() << "Could not start server!";
   }
@@ -67,10 +69,13 @@ void Server::stopServer()
 {
   m_server->close();
   m_started = false;
+  qDeleteAll(*m_connectList);
+  kDebug() << "Stopped.";
 }
 
 void Server::gotNewConnection()
 {
+  kDebug();
   ServerConnection* newConnection = new ServerConnection( m_server->nextPendingConnection() );
   m_connectList->push_back(newConnection);
   emit sigNewConnection( newConnection->getIp(), newConnection->getPort() );

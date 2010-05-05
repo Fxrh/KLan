@@ -17,6 +17,8 @@
  *                                                                        *
  **************************************************************************/ 
 
+//TODO: error handling
+
 #ifndef CLIENTCONNECTION_H
 #define CLIENTCONNECTION_H
 
@@ -30,8 +32,10 @@ class ClientConnection : protected QTcpSocket
     
     void startClient( const QString& hostIp, quint16 port );
     const QString& getIp();
+    quint16 getPort() { return m_port; }
     bool isConnected() { return m_connected; }
     bool isStarted() { return m_started; }
+    bool isInactive() { return m_isInactive; }
     const QStringList* messages() { return m_messageList; }
     void clearMessages();
     
@@ -57,7 +61,9 @@ class ClientConnection : protected QTcpSocket
     QStringList* m_messageList;
     bool m_connected;
     bool m_started;
+    bool m_isInactive;
     int m_reconnectTimer;
+    int m_inactiveTimer;
     bool m_directReconnect;
     QString m_hostIp;
     quint16 m_port;

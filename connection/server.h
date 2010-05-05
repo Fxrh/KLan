@@ -17,6 +17,8 @@
  *                                                                        *
  **************************************************************************/ 
 
+//TODO: error handling for server
+
 #ifndef SERVER_H
 #define SERVER_H
 

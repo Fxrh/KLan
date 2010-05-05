@@ -21,6 +21,10 @@
 #include <KAboutData>
 #include <KCmdLineArgs>
 #include <KLocale>
+#include <QTimer>
+
+#include "connection/client.h"
+#include "connection/server.h"
 
 int main( int argc, char* argv[] )
 {
@@ -37,5 +41,10 @@ int main( int argc, char* argv[] )
   
   KCmdLineArgs::init( argc, argv, &aboutData );
   KApplication app;
+  Client client;
+  Server server;
+  server.startServer(42786);
+  client.connectTo("127.0.0.1", 42786);
+  QTimer::singleShot(5000, &server, SLOT(stopServer()) );
   return app.exec();
 }

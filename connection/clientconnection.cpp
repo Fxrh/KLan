@@ -30,12 +30,16 @@ ClientConnection::ClientConnection(QObject *parent)
   m_connected = false;
   m_started = false;
   m_directReconnect = false;
+  m_isInactive = false;
   m_reconnectTimer = 0;
+  m_inactiveTimer = 0;
   m_port = 0;
   m_messageList = new QStringList();
   
   connect( this, SIGNAL(connected()), this, SLOT(gotConnected()) );
   connect( this, SIGNAL(disconnected()), this, SLOT(gotDisconnected()) );
+  
+  m_inactiveTimer = startTimer(2*60*1000);
 }
 
 void ClientConnection::startClient(const QString &hostIp, quint16 port)
@@ -101,6 +105,9 @@ void ClientConnection::timerEvent(QTimerEvent *event)
   if( event->timerId() == m_reconnectTimer ){
     reconnect();
   }
+  if( event->timerId() == m_inactiveTimer ){
+    m_isInactive = true;
+  }
 }
 
 void ClientConnection::gotConnected()
@@ -108,6 +115,9 @@ void ClientConnection::gotConnected()
   kDebug() << "Connected to " << this->peerAddress().toString() << ":" << m_port;
   m_connected = true;
   emit sigConnect();
+  killTimer(m_inactiveTimer);
+  m_inactiveTimer = 0;
+  m_isInactive = false;
 }
 
 void ClientConnection::gotDisconnected()
@@ -115,6 +125,11 @@ void ClientConnection::gotDisconnected()
   kDebug() << "Disconnected from " << m_hostIp << ":" << m_port;
   m_connected = false;
   emit sigDisconnect();
+  if( m_directReconnect ){
+    startClient();
+    m_directReconnect = false;
+  }
+  m_inactiveTimer = startTimer(2*60*1000);
 }
 
 void ClientConnection::gotNewData()
@@ -122,10 +137,12 @@ void ClientConnection::gotNewData()
   QString message;
   QDataStream in(this);
   in.setVersion(QDataStream::Qt_4_6);
-  in >> message;
-  kDebug() << "Got data: " << message;
-  if( !message.isEmpty() ){
-    m_messageList->append(message);
-    emit sigNewData();
+  while( !message.isEmpty() ){
+    in >> message;
+    kDebug() << "Got data: " << message;
+    if( !message.isEmpty() ){
+      m_messageList->append(message);
+      emit sigNewData();
+    }
   }
 }

@@ -17,42 +17,46 @@
  *                                                                        *
  **************************************************************************/ 
 
-//TODO: error handling for tcpSocket
+//TODO: Error handling for broadcastSocket
 
-#ifndef SERVERCONNECTION_H
-#define SERVERCONNECTION_H
+#ifndef CLIENT_H
+#define CLIENT_H
+
+class ClientConnection;
+class QUdpSocket;
 
 #include <QObject>
-#include <QString>
 
-class QTcpSocket;
-
-class ServerConnection : public QObject
+class Client : public QObject
 {
     Q_OBJECT
   public:
-    explicit ServerConnection( QTcpSocket* connection, QObject* parent=0 );
-    ~ServerConnection();
+    Client( QObject* parent=0 );
+    ~Client();
     
-    bool isConnected() { return m_connected; }
-    const QString& getIp() { return m_hostIp; }
-    int getPort() { return m_port; }
-    bool sendMessage( const QString& message );
+    void startBroadcast( quint16 port );
+    void connectTo( const QString& hostIp, quint16 port );
+    void disconnectAll();
     
   public slots:
-    void disconnect();
+    void startBroadcast();
+    void stopBroadcast();
     
-  signals:
-    void sigDisconnect();
+  protected:
+    void timerEvent(QTimerEvent* event);
     
   private slots:
-    void gotDisconnected();
+    void gotBroadcastData();
     
   private:
-    QTcpSocket* m_connection;
-    bool m_connected;
-    QString m_hostIp;
-    quint16 m_port;
+    ClientConnection* findConnection( const QString& hostIp, quint16 port );
+    
+    QList<ClientConnection*>* m_connectList;
+    QUdpSocket* m_broadcastSocket;
+    bool m_broadcastStarted;
+    quint16 m_broadcastPort;
+    int m_broadcastTimer;
+    int m_removeInactiveTimer;
 };
 
-#endif //SERVERCONNECTION_H
+#endif //CLIENT_H
