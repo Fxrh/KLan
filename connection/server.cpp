@@ -116,6 +116,7 @@ ServerConnection* Server::findConnection( const QString& hostIp, quint16 port )
 {
   ServerConnection* connection = 0;
   foreach( ServerConnection* con, *m_connectList ){
+    kDebug() << con->getIp() << con->getPort();
     if( (con->getIp() == hostIp) && (con->getPort() == port) ){
       connection = con;
       break;

@@ -22,9 +22,11 @@
 #ifndef CLIENTCONNECTION_H
 #define CLIENTCONNECTION_H
 
-#include <QTcpSocket>
+#include <QObject>
 
-class ClientConnection : public QTcpSocket
+class QTcpSocket;
+
+class ClientConnection : public QObject
 {
     Q_OBJECT
   public:
@@ -58,6 +60,7 @@ class ClientConnection : public QTcpSocket
     void gotNewData();
     
   private:
+    QTcpSocket* m_socket;
     QStringList* m_messageList;
     bool m_connected;
     bool m_started;

@@ -36,7 +36,7 @@ class ServerConnection : public QObject
     
     bool isConnected() { return m_connected; }
     const QString& getIp() { return m_hostIp; }
-    int getPort() { return m_port; }
+    quint16 getPort() { return m_port; }
     bool sendMessage( const QString& message );
     
   public slots:

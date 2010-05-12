@@ -30,6 +30,7 @@ ServerConnection::ServerConnection(QTcpSocket *connection, QObject *parent)
   m_connected = true;
   m_hostIp = m_connection->peerAddress().toString();
   m_port = m_connection->peerPort();
+  kDebug() << m_port;
 }
 
 ServerConnection::~ServerConnection()

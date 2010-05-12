@@ -19,14 +19,16 @@
 
 #include "clientconnection.h"
 
+#include <QTcpSocket>
 #include <QStringList>
 #include <QHostAddress>
 #include <QTimerEvent>
 #include <KDebug>
 
 ClientConnection::ClientConnection(QObject *parent)
-  : QTcpSocket(parent)
+  : QObject(parent)
 {
+  m_socket = new QTcpSocket(this);
   m_connected = false;
   m_started = false;
   m_directReconnect = false;
@@ -36,8 +38,9 @@ ClientConnection::ClientConnection(QObject *parent)
   m_port = 0;
   m_messageList = new QStringList();
   
-  connect( this, SIGNAL(connected()), this, SLOT(gotConnected()) );
-  connect( this, SIGNAL(disconnected()), this, SLOT(gotDisconnected()) );
+  connect( m_socket, SIGNAL(connected()), this, SLOT(gotConnected()) );
+  connect( m_socket, SIGNAL(disconnected()), this, SLOT(gotDisconnected()) );
+  connect( m_socket, SIGNAL(readyRead()), this, SLOT(gotNewData()) );
   
   m_inactiveTimer = startTimer(2*60*1000);
 }
@@ -73,7 +76,7 @@ void ClientConnection::startClient()
     kDebug() << "No port set.";
     return;
   }
-  this->connectToHost(QHostAddress(m_hostIp), m_port);
+  m_socket->connectToHost(QHostAddress(m_hostIp), m_port);
   m_reconnectTimer = startTimer(15000);
   m_started = true;
   kDebug() << "Started: " << m_hostIp << ":" << m_port;
@@ -84,7 +87,7 @@ void ClientConnection::stopClient()
   if( !m_started ){
     return;
   }
-  this->disconnectFromHost();
+  m_socket->disconnectFromHost();
   if( m_reconnectTimer != 0 ){
     killTimer(m_reconnectTimer);
     m_reconnectTimer = 0;
@@ -96,7 +99,7 @@ void ClientConnection::stopClient()
 void ClientConnection::reconnect()
 {
   if( m_started && !m_connected ){
-    this->connectToHost(QHostAddress(m_hostIp), m_port);
+    m_socket->connectToHost(QHostAddress(m_hostIp), m_port);
   }
 }
 
@@ -112,12 +115,14 @@ void ClientConnection::timerEvent(QTimerEvent *event)
 
 void ClientConnection::gotConnected()
 {
-  kDebug() << "Connected to " << this->peerAddress().toString() << ":" << m_port;
+  kDebug() << "Connected to " << m_socket->peerAddress().toString() << ":" << m_port;
   m_connected = true;
   emit sigConnect();
   killTimer(m_inactiveTimer);
   m_inactiveTimer = 0;
   m_isInactive = false;
+  // let's see if we already got some data
+  gotNewData();
 }
 
 void ClientConnection::gotDisconnected()
@@ -135,14 +140,16 @@ void ClientConnection::gotDisconnected()
 void ClientConnection::gotNewData()
 {
   QString message;
-  QDataStream in(this);
+  QDataStream in(m_socket);
   in.setVersion(QDataStream::Qt_4_6);
-  while( !message.isEmpty() ){
+  while( true ){
     in >> message;
     kDebug() << "Got data: " << message;
     if( !message.isEmpty() ){
       m_messageList->append(message);
       emit sigNewData();
+      continue;
     }
+    break;
   }
 }

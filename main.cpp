@@ -21,11 +21,8 @@
 #include <KAboutData>
 #include <KCmdLineArgs>
 #include <KLocale>
-#include <QTimer>
-#include <QTest>
 
-#include "connection/client.h"
-#include "connection/server.h"
+#include "connection/conmanager.h"
 
 int main( int argc, char* argv[] )
 {
@@ -42,12 +39,6 @@ int main( int argc, char* argv[] )
   
   KCmdLineArgs::init( argc, argv, &aboutData );
   KApplication app;
-  Client client;
-  Server server;
-  server.startServer(42786);
-  client.connectTo("127.0.0.1", 42786);
-  QTimer::singleShot(3000, &server, SLOT(sendChatMessage("Test1", "127.0.0.1", 42786 )) );
-  QTimer::singleShot(3500, &server, SLOT(sendShortMessage("test2", "127.0.0.1", 42786)) );
-  QTimer::singleShot(10000, &server, SLOT(stopServer()) );
+  ConManager manager;
   return app.exec();
 }

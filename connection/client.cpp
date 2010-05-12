@@ -60,6 +60,7 @@ void Client::connectTo(const QString &hostIp, quint16 port)
     connection = new ClientConnection();
     connection->startClient(hostIp, port);
     m_connectList->push_back(connection);
+    connect( connection, SIGNAL(sigNewData()), this, SLOT(gotNewMessage()) );
   } else {
     connection->reconnect();
   }
@@ -117,16 +118,17 @@ void Client::gotNewMessage()
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
         emit sigChatMessage(msg);
         kDebug() << "Chat:" << msg;
-        return;
+        continue;
       }
       if( cmd == "SHORT_MESSAGE"){
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
         emit sigShortMessage(msg);
         kDebug() << "Short:" << msg;
-        return;
+        continue;
       }
       kDebug() << "unknown command: " << cmd;
     }
+    connection->clearMessages();
   }
 }
 
