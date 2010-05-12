@@ -38,8 +38,7 @@ class ClientConnection : public QObject
     bool isConnected() { return m_connected; }
     bool isStarted() { return m_started; }
     bool isInactive() { return m_isInactive; }
-    const QStringList* messages() { return m_messageList; }
-    void clearMessages();
+    bool sendMessage( const QString& message );
     
   public slots:
     void startClient();
@@ -52,16 +51,13 @@ class ClientConnection : public QObject
   signals:
     void sigConnect();
     void sigDisconnect();
-    void sigNewData();
     
   private slots:
     void gotConnected();
     void gotDisconnected();
-    void gotNewData();
     
   private:
     QTcpSocket* m_socket;
-    QStringList* m_messageList;
     bool m_connected;
     bool m_started;
     bool m_isInactive;
@@ -70,6 +66,7 @@ class ClientConnection : public QObject
     bool m_directReconnect;
     QString m_hostIp;
     quint16 m_port;
+    int m_pingTimer;
 };
 
 #endif //CLIENTCONNECTION_H

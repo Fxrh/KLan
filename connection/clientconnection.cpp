@@ -20,7 +20,7 @@
 #include "clientconnection.h"
 
 #include <QTcpSocket>
-#include <QStringList>
+//#include <QStringList>
 #include <QHostAddress>
 #include <QTimerEvent>
 #include <KDebug>
@@ -36,11 +36,10 @@ ClientConnection::ClientConnection(QObject *parent)
   m_reconnectTimer = 0;
   m_inactiveTimer = 0;
   m_port = 0;
-  m_messageList = new QStringList();
+  m_pingTimer = startTimer(15000);
   
   connect( m_socket, SIGNAL(connected()), this, SLOT(gotConnected()) );
   connect( m_socket, SIGNAL(disconnected()), this, SLOT(gotDisconnected()) );
-  connect( m_socket, SIGNAL(readyRead()), this, SLOT(gotNewData()) );
   
   m_inactiveTimer = startTimer(2*60*1000);
 }
@@ -62,9 +61,17 @@ const QString& ClientConnection::getIp()
   return m_hostIp;
 }
 
-void ClientConnection::clearMessages()
+bool ClientConnection::sendMessage(const QString &message)
 {
-  m_messageList->clear();
+  if( !m_connected || message.isEmpty() ){
+    return false;
+  }
+  kDebug() << "Send data to " << m_socket->peerAddress().toString() << ":"
+      << m_socket->peerPort() << " : " << message;
+  QDataStream out( m_socket );
+  out.setVersion(QDataStream::Qt_4_6);
+  out << message;
+  return true;
 }
 
 void ClientConnection::startClient()
@@ -111,6 +118,9 @@ void ClientConnection::timerEvent(QTimerEvent *event)
   if( event->timerId() == m_inactiveTimer ){
     m_isInactive = true;
   }
+  if( event->timerId() == m_pingTimer ){
+    sendMessage("PING 1");
+  }
 }
 
 void ClientConnection::gotConnected()
@@ -121,13 +131,12 @@ void ClientConnection::gotConnected()
   killTimer(m_inactiveTimer);
   m_inactiveTimer = 0;
   m_isInactive = false;
-  // let's see if we already got some data
-  gotNewData();
 }
 
 void ClientConnection::gotDisconnected()
 {
   kDebug() << "Disconnected from " << m_hostIp << ":" << m_port;
+  killTimer(m_pingTimer);
   m_connected = false;
   emit sigDisconnect();
   if( m_directReconnect ){
@@ -135,21 +144,4 @@ void ClientConnection::gotDisconnected()
     m_directReconnect = false;
   }
   m_inactiveTimer = startTimer(2*60*1000);
-}
-
-void ClientConnection::gotNewData()
-{
-  QString message;
-  QDataStream in(m_socket);
-  in.setVersion(QDataStream::Qt_4_6);
-  while( true ){
-    in >> message;
-    kDebug() << "Got data: " << message;
-    if( !message.isEmpty() ){
-      m_messageList->append(message);
-      emit sigNewData();
-      continue;
-    }
-    break;
-  }
 }

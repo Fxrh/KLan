@@ -22,17 +22,22 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QTimerEvent>
+#include <QStringList>
 #include <KDebug>
 
 ServerConnection::ServerConnection(QTcpSocket *connection, QObject *parent)
   : QObject(parent),
     m_connection(connection)
 {
+  m_messageList = new QStringList();
   m_connected = true;
   m_hostIp = m_connection->peerAddress().toString();
   m_port = m_connection->peerPort();
-  m_pingTimer = startTimer(15000);
+  
   kDebug() << m_port;
+  connect( m_connection, SIGNAL(readyRead()), this, SLOT(gotNewData()) );
+  // let's see if we already got some data
+  gotNewData();
 }
 
 ServerConnection::~ServerConnection()
@@ -42,29 +47,14 @@ ServerConnection::~ServerConnection()
   }
 }
 
-bool ServerConnection::sendMessage(const QString &message)
+void ServerConnection::clearMessages()
 {
-  if( !m_connected || message.isEmpty() ){
-    return false;
-  }
-  kDebug() << "Send data to " << m_connection->peerAddress().toString() << ":"
-      << m_connection->peerPort() << " : " << message;
-  QDataStream out( m_connection );
-  out.setVersion(QDataStream::Qt_4_6);
-  out << message;
-  return true;
+  m_messageList->clear();
 }
 
 void ServerConnection::disconnect()
 {
   m_connection->disconnectFromHost();
-}
-
-void ServerConnection::timerEvent(QTimerEvent *event)
-{
-  if( event->timerId() == m_pingTimer ){
-    sendMessage("PING 1");
-  }
 }
 
 void ServerConnection::gotDisconnected()
@@ -73,6 +63,22 @@ void ServerConnection::gotDisconnected()
   m_connected = false;
   m_connection->deleteLater();
   m_connection = 0;
-  killTimer(m_pingTimer);
   emit sigDisconnect();
+}
+
+void ServerConnection::gotNewData()
+{
+  QString message;
+  QDataStream in(m_connection);
+  in.setVersion(QDataStream::Qt_4_6);
+  while( true ){
+    in >> message;
+    kDebug() << "Got data: " << message;
+    if( !message.isEmpty() ){
+      m_messageList->append(message);
+      emit sigNewData();
+      continue;
+    }
+    break;
+  }
 }

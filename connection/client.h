@@ -38,19 +38,17 @@ class Client : public QObject
     void connectTo( const QString& hostIp, quint16 port );
     void disconnectAll();
     
+    void sendChatMessage(const QString& message, const QString& ip, quint16 port );
+    void sendShortMessage( const QString& message, const QString& ip, quint16 port );
+    
   public slots:
     void startBroadcast();
     void stopBroadcast();
-    
-  signals:
-    void sigChatMessage( QString message );
-    void sigShortMessage( QString message );
     
   protected:
     void timerEvent(QTimerEvent* event);
     
   private slots:
-    void gotNewMessage();
     void gotBroadcastData();
     
   private:

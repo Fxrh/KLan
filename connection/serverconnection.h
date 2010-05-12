@@ -37,26 +37,26 @@ class ServerConnection : public QObject
     bool isConnected() { return m_connected; }
     const QString& getIp() { return m_hostIp; }
     quint16 getPort() { return m_port; }
-    bool sendMessage( const QString& message );
+    const QStringList* messages() { return m_messageList; }
+    void clearMessages();
     
   public slots:
     void disconnect();
     
-  protected:
-    void timerEvent(QTimerEvent* event );
-    
   signals:
     void sigDisconnect();
+    void sigNewData();
     
   private slots:
     void gotDisconnected();
+    void gotNewData();
     
   private:
     QTcpSocket* m_connection;
+    QStringList* m_messageList;
     bool m_connected;
     QString m_hostIp;
     quint16 m_port;
-    int m_pingTimer;
 };
 
 #endif //SERVERCONNECTION_H

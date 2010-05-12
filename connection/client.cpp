@@ -23,7 +23,6 @@
 #include <QUdpSocket>
 #include <QHostAddress>
 #include <QTimerEvent>
-#include <QStringList>
 #include <KDebug>
 
 Client::Client(QObject *parent)
@@ -60,7 +59,6 @@ void Client::connectTo(const QString &hostIp, quint16 port)
     connection = new ClientConnection();
     connection->startClient(hostIp, port);
     m_connectList->push_back(connection);
-    connect( connection, SIGNAL(sigNewData()), this, SLOT(gotNewMessage()) );
   } else {
     connection->reconnect();
   }
@@ -69,6 +67,26 @@ void Client::connectTo(const QString &hostIp, quint16 port)
 void Client::disconnectAll()
 {
   qDeleteAll(*m_connectList);
+}
+
+void Client::sendChatMessage(const QString &message, const QString &ip, quint16 port)
+{
+  ClientConnection* connection = findConnection( ip, port );
+  if( !connection ){
+    kDebug() << "Host/Ip not found: " << ip << port;
+    return;
+  }
+  connection->sendMessage("CHAT_MESSAGE " + message);
+}
+
+void Client::sendShortMessage(const QString &message, const QString &ip, quint16 port)
+{
+  ClientConnection* connection = findConnection( ip, port );
+  if( !connection ){
+    kDebug() << "Host/Ip not found: " << ip << port;
+    return;
+  }
+  connection->sendMessage("SHORT_MESSAGE " + message );
 }
 
 void Client::startBroadcast()
@@ -105,34 +123,6 @@ void Client::timerEvent(QTimerEvent *event)
         delete con;
       }
     }
-  }
-}
-
-void Client::gotNewMessage()
-{
-  ClientConnection* connection = static_cast<ClientConnection*>(sender());
-  if( connection ){
-    foreach( QString message, *(connection->messages()) ){
-      QString cmd = message.left( message.indexOf(' ') );
-      if( cmd == "PING" ){
-        kDebug() << "PING";
-        continue;
-      }
-      if( cmd == "CHAT_MESSAGE"){
-        QString msg = message.right( message.length()-message.indexOf(' ')-1 );
-        emit sigChatMessage(msg);
-        kDebug() << "Chat:" << msg;
-        continue;
-      }
-      if( cmd == "SHORT_MESSAGE"){
-        QString msg = message.right( message.length()-message.indexOf(' ')-1 );
-        emit sigShortMessage(msg);
-        kDebug() << "Short:" << msg;
-        continue;
-      }
-      kDebug() << "unknown command: " << cmd;
-    }
-    connection->clearMessages();
   }
 }
 

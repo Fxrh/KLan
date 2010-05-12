@@ -23,6 +23,7 @@
 #include <QTcpServer>
 #include <QHostAddress>
 #include <QList>
+#include <QStringList>
 #include <KDebug>
 
 Server::Server(QObject *parent)
@@ -52,26 +53,6 @@ void Server::startServer(quint16 port)
   startServer();
 }
 
-void Server::sendChatMessage(const QString &message, const QString &ip, quint16 port)
-{
-  ServerConnection* connection = findConnection( ip, port );
-  if( !connection ){
-    kDebug() << "Host/Ip not found: " << ip << port;
-    return;
-  }
-  connection->sendMessage("CHAT_MESSAGE " + message);
-}
-
-void Server::sendShortMessage(const QString &message, const QString &ip, quint16 port)
-{
-  ServerConnection* connection = findConnection( ip, port );
-  if( !connection ){
-    kDebug() << "Host/Ip not found: " << ip << port;
-    return;
-  }
-  connection->sendMessage("SHORT_MESSAGE " + message );
-}
-
 void Server::startServer()
 {
   if( m_started ){
@@ -93,12 +74,41 @@ void Server::stopServer()
   kDebug() << "Stopped.";
 }
 
+void Server::gotNewMessage()
+{
+  ServerConnection* connection = static_cast<ServerConnection*>(sender());
+  if( connection ){
+    foreach( QString message, *(connection->messages()) ){
+      QString cmd = message.left( message.indexOf(' ') );
+      if( cmd == "PING" ){
+        kDebug() << "PING";
+        continue;
+      }
+      if( cmd == "CHAT_MESSAGE"){
+        QString msg = message.right( message.length()-message.indexOf(' ')-1 );
+        emit sigChatMessage(msg);
+        kDebug() << "Chat:" << msg;
+        continue;
+      }
+      if( cmd == "SHORT_MESSAGE"){
+        QString msg = message.right( message.length()-message.indexOf(' ')-1 );
+        emit sigShortMessage(msg);
+        kDebug() << "Short:" << msg;
+        continue;
+      }
+      kDebug() << "unknown command: " << cmd;
+    }
+    connection->clearMessages();
+  }
+}
+
 void Server::gotNewConnection()
 {
   kDebug();
   ServerConnection* newConnection = new ServerConnection( m_server->nextPendingConnection() );
   m_connectList->push_back(newConnection);
   emit sigNewConnection( newConnection->getIp(), newConnection->getPort() );
+  connect( newConnection, SIGNAL(sigNewData()), this, SLOT(gotNewMessage()) );
 }
 
 void Server::lostConnection()
