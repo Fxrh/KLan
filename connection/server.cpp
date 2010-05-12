@@ -52,6 +52,26 @@ void Server::startServer(quint16 port)
   startServer();
 }
 
+void Server::sendChatMessage(const QString &message, const QString &ip, quint16 port)
+{
+  ServerConnection* connection = findConnection( ip, port );
+  if( !connection ){
+    kDebug() << "Host/Ip not found: " << ip << port;
+    return;
+  }
+  connection->sendMessage("CHAT_MESSAGE " + message);
+}
+
+void Server::sendShortMessage(const QString &message, const QString &ip, quint16 port)
+{
+  ServerConnection* connection = findConnection( ip, port );
+  if( !connection ){
+    kDebug() << "Host/Ip not found: " << ip << port;
+    return;
+  }
+  connection->sendMessage("SHORT_MESSAGE " + message );
+}
+
 void Server::startServer()
 {
   if( m_started ){
@@ -90,4 +110,16 @@ void Server::lostConnection()
     delete m_connectList->at(index);
     m_connectList->removeAt(index);
   }
+}
+
+ServerConnection* Server::findConnection( const QString& hostIp, quint16 port )
+{
+  ServerConnection* connection = 0;
+  foreach( ServerConnection* con, *m_connectList ){
+    if( (con->getIp() == hostIp) && (con->getPort() == port) ){
+      connection = con;
+      break;
+    }
+  }
+  return connection;
 }

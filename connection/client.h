@@ -42,10 +42,15 @@ class Client : public QObject
     void startBroadcast();
     void stopBroadcast();
     
+  signals:
+    void sigChatMessage( QString message );
+    void sigShortMessage( QString message );
+    
   protected:
     void timerEvent(QTimerEvent* event);
     
   private slots:
+    void gotNewMessage();
     void gotBroadcastData();
     
   private:

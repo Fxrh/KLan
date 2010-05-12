@@ -5,6 +5,7 @@ find_package( KDE4 REQUIRED )
 include( KDE4Defaults )
 include_directories( ${KDE4_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} )
 
+
 set( KLan_SRCS main.cpp
                connection/conmanager.cpp
                connection/server.cpp

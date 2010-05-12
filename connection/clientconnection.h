@@ -24,7 +24,7 @@
 
 #include <QTcpSocket>
 
-class ClientConnection : protected QTcpSocket
+class ClientConnection : public QTcpSocket
 {
     Q_OBJECT
   public:

@@ -22,6 +22,7 @@
 #include <KCmdLineArgs>
 #include <KLocale>
 #include <QTimer>
+#include <QTest>
 
 #include "connection/client.h"
 #include "connection/server.h"
@@ -45,6 +46,8 @@ int main( int argc, char* argv[] )
   Server server;
   server.startServer(42786);
   client.connectTo("127.0.0.1", 42786);
-  QTimer::singleShot(5000, &server, SLOT(stopServer()) );
+  QTimer::singleShot(3000, &server, SLOT(sendChatMessage("Test1", "127.0.0.1", 42786 )) );
+  QTimer::singleShot(3500, &server, SLOT(sendShortMessage("test2", "127.0.0.1", 42786)) );
+  QTimer::singleShot(10000, &server, SLOT(stopServer()) );
   return app.exec();
 }

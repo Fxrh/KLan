@@ -35,6 +35,9 @@ class Server : public QObject
     ~Server();
     
     void startServer( quint16 port );
+  
+    void sendChatMessage(const QString& message, const QString& ip, quint16 port );
+    void sendShortMessage( const QString& message, const QString& ip, quint16 port );
     
   public slots:
     void startServer();
@@ -48,6 +51,8 @@ class Server : public QObject
     void lostConnection();
     
   private:
+    ServerConnection* findConnection( const QString& hostIp, quint16 port );
+    
     QTcpServer* m_server;
     QList<ServerConnection*>* m_connectList;
     quint16 m_port;

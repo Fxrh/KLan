@@ -23,6 +23,7 @@
 #include <QUdpSocket>
 #include <QHostAddress>
 #include <QTimerEvent>
+#include <QStringList>
 #include <KDebug>
 
 Client::Client(QObject *parent)
@@ -102,6 +103,29 @@ void Client::timerEvent(QTimerEvent *event)
         m_connectList->removeOne(con);
         delete con;
       }
+    }
+  }
+}
+
+void Client::gotNewMessage()
+{
+  ClientConnection* connection = static_cast<ClientConnection*>(sender());
+  if( connection ){
+    foreach( QString message, *(connection->messages()) ){
+      QString cmd = message.left( message.indexOf(' ') );
+      if( cmd == "CHAT_MESSAGE"){
+        QString msg = message.right( message.length()-message.indexOf(' ')-1 );
+        emit sigChatMessage(msg);
+        kDebug() << "Chat:" << msg;
+        return;
+      }
+      if( cmd == "SHORT_MESSAGE"){
+        QString msg = message.right( message.length()-message.indexOf(' ')-1 );
+        emit sigShortMessage(msg);
+        kDebug() << "Short:" << msg;
+        return;
+      }
+      kDebug() << "unknown command: " << cmd;
     }
   }
 }
