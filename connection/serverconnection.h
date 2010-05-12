@@ -42,6 +42,9 @@ class ServerConnection : public QObject
   public slots:
     void disconnect();
     
+  protected:
+    void timerEvent(QTimerEvent* event );
+    
   signals:
     void sigDisconnect();
     
@@ -53,6 +56,7 @@ class ServerConnection : public QObject
     bool m_connected;
     QString m_hostIp;
     quint16 m_port;
+    int m_pingTimer;
 };
 
 #endif //SERVERCONNECTION_H

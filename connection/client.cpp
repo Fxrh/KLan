@@ -114,6 +114,10 @@ void Client::gotNewMessage()
   if( connection ){
     foreach( QString message, *(connection->messages()) ){
       QString cmd = message.left( message.indexOf(' ') );
+      if( cmd == "PING" ){
+        kDebug() << "PING";
+        continue;
+      }
       if( cmd == "CHAT_MESSAGE"){
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
         emit sigChatMessage(msg);

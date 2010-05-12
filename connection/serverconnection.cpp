@@ -21,6 +21,7 @@
 
 #include <QTcpSocket>
 #include <QHostAddress>
+#include <QTimerEvent>
 #include <KDebug>
 
 ServerConnection::ServerConnection(QTcpSocket *connection, QObject *parent)
@@ -30,6 +31,7 @@ ServerConnection::ServerConnection(QTcpSocket *connection, QObject *parent)
   m_connected = true;
   m_hostIp = m_connection->peerAddress().toString();
   m_port = m_connection->peerPort();
+  m_pingTimer = startTimer(15000);
   kDebug() << m_port;
 }
 
@@ -58,11 +60,19 @@ void ServerConnection::disconnect()
   m_connection->disconnectFromHost();
 }
 
+void ServerConnection::timerEvent(QTimerEvent *event)
+{
+  if( event->timerId() == m_pingTimer ){
+    sendMessage("PING 1");
+  }
+}
+
 void ServerConnection::gotDisconnected()
 {
   kDebug() << "got disconnected";
   m_connected = false;
   m_connection->deleteLater();
   m_connection = 0;
+  killTimer(m_pingTimer);
   emit sigDisconnect();
 }
