@@ -40,16 +40,23 @@ class Client : public QObject
     
     void sendChatMessage(const QString& message, const QString& ip, quint16 port );
     void sendShortMessage( const QString& message, const QString& ip, quint16 port );
+    void sendServerInfo( quint16 serverPort, const QString& ip, quint16 port );
     
   public slots:
     void startBroadcast();
     void stopBroadcast();
+    
+  signals:
+    void newConnection( QString ip, quint16 port );
+    void lostConnection( QString ip, quint16 port );
     
   protected:
     void timerEvent(QTimerEvent* event);
     
   private slots:
     void gotBroadcastData();
+    void gotConnected();
+    void gotDisconnected();
     
   private:
     ClientConnection* findConnection( const QString& hostIp, quint16 port );

@@ -15,51 +15,43 @@
  * You should have received a copy of the GNU General Public License      *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  *                                                                        *
- **************************************************************************/ 
-
-//TODO: error handling for server
-
-#ifndef SERVER_H
-#define SERVER_H
+ **************************************************************************/
 
 #include <QObject>
 
-class QTcpServer;
-class ServerConnection;
+class Server;
+class Client;
+struct Connection;
 
-class Server : public QObject
+class ConManager : public QObject
 {
     Q_OBJECT
   public:
-    Server( QObject* parent=0 );
-    ~Server();
-    
-    void startServer( quint16 port );
-    void removeConnection( const QString& ip, quint16 port );
-    quint16 serverPort() const { return m_port; } 
-    
-  public slots:
-    void startServer();
-    void stopServer();
-    
-  signals:
-    void sigNewConnection( QString hostIp, quint16 port );
-    void sigChatMessage( QString message );
-    void sigShortMessage( QString message );
-    void sigServer( quint16 serverPort, QString ip, quint16 port );
+    enum Connected { connected, notConnected };
+    ConManager( QObject* parent = 0 );
     
   private slots:
-    void gotNewMessage();
-    void gotNewConnection();
-    void lostConnection();
+    void serverGotConnected( QString ip, quint16 port );
+    void clientGotConnected( QString ip, quint16 port );
+    void clientGotDisconnected( QString ip, quint16 port );
+    void gotServerInfo( quint16 serverPort, QString ip, quint16 port );
     
   private:
-    ServerConnection* findConnection( const QString& hostIp, quint16 port );
+    int findConnection(const QString& ip, quint16 port, bool portIsClient=true );
     
-    QTcpServer* m_server;
-    QList<ServerConnection*>* m_connectList;
-    quint16 m_port;
-    bool m_started;
+    Server* m_server;
+    Client* m_client;
+    
+    QList<Connection>* m_conList;
 };
 
-#endif //SERVER_H
+struct Connection {
+  // the Ip the client and the server connect to
+  QString ip;
+  // the port the client connects to
+  quint16 client_port;
+  // the port the server connects to
+  quint16 server_port;
+  // state is true if the client port is set
+  ConManager::Connected conState;
+};

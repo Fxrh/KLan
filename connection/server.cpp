@@ -53,6 +53,17 @@ void Server::startServer(quint16 port)
   startServer();
 }
 
+void Server::removeConnection(const QString &ip, quint16 port)
+{
+  ServerConnection* connection = findConnection(ip, port);
+  if( connection ){
+    connection->disconnect();
+    m_connectList->removeOne(connection);
+    delete connection;
+    kDebug() << "removed " << ip << port;
+  }
+}
+
 void Server::startServer()
 {
   if( m_started ){
@@ -94,6 +105,15 @@ void Server::gotNewMessage()
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
         emit sigShortMessage(msg);
         kDebug() << "Short:" << msg;
+        continue;
+      }
+      if( cmd == "SERVER"){
+        QString msg = message.right( message.length()-message.indexOf(' ')-1 );
+        quint16 port = (quint16) msg.toUInt();
+        if( port <= 0 ){
+          continue;
+        }
+        emit sigServer(port, connection->getIp(), connection->getPort() );
         continue;
       }
       kDebug() << "unknown command: " << cmd;

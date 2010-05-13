@@ -59,6 +59,8 @@ void Client::connectTo(const QString &hostIp, quint16 port)
     connection = new ClientConnection();
     connection->startClient(hostIp, port);
     m_connectList->push_back(connection);
+    connect( connection, SIGNAL(sigConnect()), this, SLOT(gotConnected()) );
+    connect( connection, SIGNAL(sigDisconnect()), this, SLOT(gotDisconnected()) );
   } else {
     connection->reconnect();
   }
@@ -87,6 +89,16 @@ void Client::sendShortMessage(const QString &message, const QString &ip, quint16
     return;
   }
   connection->sendMessage("SHORT_MESSAGE " + message );
+}
+
+void Client::sendServerInfo(quint16 serverPort, const QString &ip, quint16 port)
+{
+  ClientConnection* connection = findConnection( ip, port );
+  if( !connection ){
+    kDebug() << "Host/Ip not found: " << ip << port;
+    return;
+  }
+  connection->sendMessage("SERVER " + QString::number(serverPort));
 }
 
 void Client::startBroadcast()
@@ -137,8 +149,24 @@ void Client::gotBroadcastData()
     m_broadcastSocket->readDatagram(datagram.data(), datagram.size(),
                                     &sender, &senderPort);
     if( QString(datagram) == "KLan" ){
-      connectTo( sender.toString(), senderPort );
+      //connectTo( sender.toString(), senderPort );
     }
+  }
+}
+
+void Client::gotConnected()
+{
+  ClientConnection* connection = static_cast<ClientConnection*>(sender());
+  if( connection ){
+    emit newConnection( connection->getIp(), connection->getPort() );
+  }
+}
+
+void Client::gotDisconnected()
+{
+  ClientConnection* connection = static_cast<ClientConnection*>(sender());
+  if( connection ){
+    emit lostConnection(connection->getIp(), connection->getPort());
   }
 }
 
