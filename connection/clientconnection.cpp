@@ -18,6 +18,7 @@
  **************************************************************************/ 
 
 #include "clientconnection.h"
+#include "def.h"
 
 #include <QTcpSocket>
 //#include <QStringList>
@@ -119,7 +120,7 @@ void ClientConnection::timerEvent(QTimerEvent *event)
     m_isInactive = true;
   }
   if( event->timerId() == m_pingTimer ){
-    sendMessage("PING 1");
+    sendMessage( connection::Mess_Ping + " 1");
   }
 }
 

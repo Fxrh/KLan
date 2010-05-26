@@ -17,6 +17,7 @@
  *                                                                        *
  **************************************************************************/ 
 
+#include "def.h"
 #include "server.h"
 #include "serverconnection.h"
 
@@ -91,24 +92,24 @@ void Server::gotNewMessage()
   if( connection ){
     foreach( QString message, *(connection->messages()) ){
       QString cmd = message.left( message.indexOf(' ') );
-      if( cmd == "PING" ){
+      if( cmd == connection::Mess_Ping ){
         kDebug() << "PING";
         connection->setActive();
         continue;
       }
-      if( cmd == "CHAT_MESSAGE"){
+      if( cmd == connection::Mess_Chat ){
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
         emit sigChatMessage(msg);
         kDebug() << "Chat:" << msg;
         continue;
       }
-      if( cmd == "SHORT_MESSAGE"){
+      if( cmd == connection::Mess_Short ){
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
         emit sigShortMessage(msg);
         kDebug() << "Short:" << msg;
         continue;
       }
-      if( cmd == "SERVER"){
+      if( cmd == connection::Mess_Server ){
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
         quint16 port = (quint16) msg.toUInt();
         if( port <= 0 ){

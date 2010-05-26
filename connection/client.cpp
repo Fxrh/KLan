@@ -17,6 +17,7 @@
  *                                                                        *
  **************************************************************************/ 
 
+#include "def.h"
 #include "client.h"
 #include "clientconnection.h"
 
@@ -78,7 +79,7 @@ void Client::sendChatMessage(const QString &message, const QString &ip, quint16 
     kDebug() << "Host/Ip not found: " << ip << port;
     return;
   }
-  connection->sendMessage("CHAT_MESSAGE " + message);
+  connection->sendMessage( connection::Mess_Chat + " " + message);
 }
 
 void Client::sendShortMessage(const QString &message, const QString &ip, quint16 port)
@@ -88,7 +89,7 @@ void Client::sendShortMessage(const QString &message, const QString &ip, quint16
     kDebug() << "Host/Ip not found: " << ip << port;
     return;
   }
-  connection->sendMessage("SHORT_MESSAGE " + message );
+  connection->sendMessage( connection::Mess_Short + " " + message );
 }
 
 void Client::sendServerInfo(quint16 serverPort, const QString &ip, quint16 port)
@@ -98,7 +99,7 @@ void Client::sendServerInfo(quint16 serverPort, const QString &ip, quint16 port)
     kDebug() << "Host/Ip not found: " << ip << port;
     return;
   }
-  connection->sendMessage("SERVER " + QString::number(serverPort));
+  connection->sendMessage( connection::Mess_Server + " " + QString::number(serverPort));
 }
 
 void Client::startBroadcast()
