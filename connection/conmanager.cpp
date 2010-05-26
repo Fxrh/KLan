@@ -31,7 +31,7 @@ ConManager::ConManager( QObject* parent )
   m_client = new Client(this);
   m_conList = new QList<Connection>();
   
-  m_server->startServer(57689);
+  m_server->startServer(67352);
   m_client->connectTo("127.0.0.1", 42786);
   
   connect( m_server, SIGNAL(sigNewConnection(QString,quint16)), this, SLOT(serverGotConnected(QString,quint16)) );

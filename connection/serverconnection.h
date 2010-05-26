@@ -39,9 +39,13 @@ class ServerConnection : public QObject
     quint16 getPort() { return m_port; }
     const QStringList* messages() { return m_messageList; }
     void clearMessages();
+    void setActive() { m_active = true; }
     
   public slots:
     void disconnect();
+    
+  protected:
+    void timerEvent(QTimerEvent* event);
     
   signals:
     void sigDisconnect();
@@ -57,6 +61,8 @@ class ServerConnection : public QObject
     bool m_connected;
     QString m_hostIp;
     quint16 m_port;
+    bool m_active;
+    int m_activeTimer;
 };
 
 #endif //SERVERCONNECTION_H

@@ -93,6 +93,7 @@ void Server::gotNewMessage()
       QString cmd = message.left( message.indexOf(' ') );
       if( cmd == "PING" ){
         kDebug() << "PING";
+        connection->setActive();
         continue;
       }
       if( cmd == "CHAT_MESSAGE"){

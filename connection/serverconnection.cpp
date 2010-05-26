@@ -33,6 +33,8 @@ ServerConnection::ServerConnection(QTcpSocket *connection, QObject *parent)
   m_connected = true;
   m_hostIp = m_connection->peerAddress().toString();
   m_port = m_connection->peerPort();
+  m_active = true;
+  m_activeTimer = startTimer(2*60000);
   
   kDebug() << m_port;
   connect( m_connection, SIGNAL(readyRead()), this, SLOT(gotNewData()) );
@@ -57,6 +59,19 @@ void ServerConnection::disconnect()
   m_connection->disconnectFromHost();
 }
 
+void ServerConnection::timerEvent(QTimerEvent *event)
+{
+  if( event->timerId() == m_activeTimer ){
+    if( !m_active ){
+      kDebug() << "Removing inactive server";
+      killTimer(m_activeTimer);
+      disconnect();
+    } else {
+      m_active = false;
+    }
+  }
+}
+
 void ServerConnection::gotDisconnected()
 {
   kDebug() << "got disconnected";
@@ -73,7 +88,7 @@ void ServerConnection::gotNewData()
   in.setVersion(QDataStream::Qt_4_6);
   while( true ){
     in >> message;
-    kDebug() << "Got data: " << message;
+    //kDebug() << "Got data: " << message;
     if( !message.isEmpty() ){
       m_messageList->append(message);
       emit sigNewData();
