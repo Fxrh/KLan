@@ -17,44 +17,38 @@
  *                                                                        *
  **************************************************************************/
 
+#ifndef CONNECTIONOBJECT_H
+#define CONNECTIONOBJECT_H
+
 #include <QObject>
 
-#include "connectionobject.h"
-
-class Server;
-class Client;
-struct Connection;
-
-class ConManager : public QObject
+class ConnectionObject : public QObject
 {
     Q_OBJECT
   public:
-    enum Connected { connected, notConnected };
-    ConManager( QObject* parent = 0 );
-    ~ConManager();
+    ConnectionObject( const QString& ip, quint16 server_port, quint16 client_port, bool connected );
     
-  private slots:
-    void serverGotConnected( QString ip, quint16 port );
-    void clientGotConnected( QString ip, quint16 port );
-    void clientGotDisconnected( QString ip, quint16 port );
-    void gotServerInfo( quint16 serverPort, QString ip, quint16 port );
+    bool isConnected();
+    bool hasServerInfo();
+    bool hasClientInfo();
+    const QString& getIp();
+    quint16 getServerPort();
+    quint16 getClientPort();
+    void changeServerPort( quint16 server_port );
+    void changeClientPort( quint16 client_port );
+    void changeConnection( bool connected );
+    
+  signals:
+    void sigChange();
     
   private:
-    int findConnection(const QString& ip, quint16 port, bool portIsClient=true );
-    
-    Server* m_server;
-    Client* m_client;
-    
-    QList<ConnectionObject*>* m_conList;
+    // the Ip the client and the server connect to
+    QString m_ip;
+    // the port the server connects to
+    quint16 m_server_port;
+    // the port the client connects to
+    quint16 m_client_port;
+    bool m_isConnected;
 };
 
-//struct Connection {
-//  // the Ip the client and the server connect to
-//  QString ip;
-//  // the port the client connects to
-//  quint16 client_port;
-//  // the port the server connects to
-//  quint16 server_port;
-//  // state is true if the client port is set
-//  ConManager::Connected conState;
-//};
+#endif

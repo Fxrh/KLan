@@ -29,7 +29,7 @@ ConManager::ConManager( QObject* parent )
 {
   m_server = new Server(this);
   m_client = new Client(this);
-  m_conList = new QList<Connection>();
+  m_conList = new QList<ConnectionObject*>();
   
   m_server->startServer(67352);
   m_client->connectTo("127.0.0.1", 42786);
@@ -40,13 +40,19 @@ ConManager::ConManager( QObject* parent )
   connect( m_server, SIGNAL(sigServer(quint16,QString,quint16)), this, SLOT(gotServerInfo(quint16,QString,quint16)) );
 }
 
+ConManager::~ConManager()
+{
+  qDeleteAll(*m_conList);
+  delete m_conList;
+}
+
 void ConManager::serverGotConnected(QString ip, quint16 port)
 {
   kDebug() << ip << port;
   if( findConnection(ip, port, false) != -1 ){
     return;
   }
-  Connection conn = { ip, 0, port, notConnected };
+  ConnectionObject* conn = new ConnectionObject(ip, port, 0, false); //{ ip, 0, port, notConnected };
   m_conList->push_back(conn);
 }
 
@@ -54,14 +60,19 @@ void ConManager::clientGotConnected(QString ip, quint16 port)
 {
   int id = findConnection(ip, port);
   if( id != -1 ){
-    if( m_conList->at(id).conState == notConnected ){
-      (*m_conList)[id].conState = connected;
+//    if( m_conList->at(id).conState == notConnected ){
+//      (*m_conList)[id].conState = connected;
+//      kDebug() << "Connection online:" << ip << port;
+//      m_client->sendServerInfo( m_server->serverPort(), ip, port );
+//    }
+    if( !m_conList->at(id)->isConnected() ){
+      m_conList->at(id)->changeConnection(true);
       kDebug() << "Connection online:" << ip << port;
       m_client->sendServerInfo( m_server->serverPort(), ip, port );
     }
     return;
   }
-  Connection conn = { ip, port, 0, connected };
+  ConnectionObject* conn = new ConnectionObject(ip, 0, port, true ); //{ ip, port, 0, connected };
   m_conList->push_back(conn);
   m_client->sendServerInfo( m_server->serverPort(), ip, port );
 }
@@ -72,9 +83,10 @@ void ConManager::clientGotDisconnected(QString ip, quint16 port)
   if( id == -1 ){
     return;
   }
-  if( m_conList->at(id).server_port != 0 ){
-    m_server->removeConnection( m_conList->at(id).ip, m_conList->at(id).server_port );
+  if( m_conList->at(id)->getServerPort() != 0 ){
+    m_server->removeConnection( m_conList->at(id)->getIp(), m_conList->at(id)->getServerPort() );
   }
+  delete m_conList->at(id);
   m_conList->removeAt(id);
 }
 
@@ -89,13 +101,14 @@ void ConManager::gotServerInfo(quint16 serverPort, QString ip, quint16 port)
   int oldId = findConnection( ip, serverPort );
   if( oldId != -1 ){
     // we already have a connection to that server
+    delete m_conList->at(newId);
     m_conList->removeAt(newId);
-    if( m_conList->at(oldId).server_port == 0 ){
-      (*m_conList)[oldId].server_port = port;
+    if( m_conList->at(oldId)->getServerPort() == 0 ){
+      (*m_conList)[oldId]->changeServerPort(port);
       kDebug() << "Added Server to client connection";
     }
   } else {
-    (*m_conList)[newId].client_port = serverPort; // client_port is the port the client connects to!!
+    (*m_conList)[newId]->changeClientPort(serverPort); // client_port is the port the client connects to!!
     m_client->connectTo(ip, serverPort );
     kDebug() << "Added Client to server connection";
   }
@@ -105,14 +118,14 @@ int ConManager::findConnection(const QString &ip, quint16 port, bool portIsClien
 {
   if( portIsClient ){
     for( int i=0; i<m_conList->count(); ++i ){
-      if( m_conList->at(i).ip == ip && m_conList->at(i).client_port == port ){
+      if( m_conList->at(i)->getIp() == ip && m_conList->at(i)->getClientPort() == port ){
         return i;
       }
     }
   } else {
     for( int i=0; i<m_conList->count(); ++i ){
-      kDebug() << "Ip:" << m_conList->at(i).ip << "server_port:" << m_conList->at(i).server_port;
-      if( m_conList->at(i).ip == ip && m_conList->at(i).server_port == port ){
+      //kDebug() << "Ip:" << m_conList->at(i)->getIp() << "server_port:" << m_conList->at(i)->getServerPort();
+      if( m_conList->at(i)->getIp() == ip && m_conList->at(i)->getServerPort() == port ){
         return i;
       }
     }

@@ -7,11 +7,15 @@ include_directories( ${KDE4_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} )
 
 
 set( KLan_SRCS main.cpp
-               connection/conmanager.cpp
+               mainwindow.cpp
+               model/conmodel.cpp
+               connection/connectionobject.cpp
+               connection/conmanager.cpp 
                connection/server.cpp
                connection/client.cpp
                connection/clientconnection.cpp
                connection/serverconnection.cpp
+               connection/def.h
                )
 
 kde4_add_executable( klan ${KLan_SRCS} )

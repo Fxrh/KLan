@@ -17,44 +17,66 @@
  *                                                                        *
  **************************************************************************/
 
-#include <QObject>
-
 #include "connectionobject.h"
 
-class Server;
-class Client;
-struct Connection;
-
-class ConManager : public QObject
+ConnectionObject::ConnectionObject(const QString &ip, quint16 server_port, quint16 client_port, bool connected)
 {
-    Q_OBJECT
-  public:
-    enum Connected { connected, notConnected };
-    ConManager( QObject* parent = 0 );
-    ~ConManager();
-    
-  private slots:
-    void serverGotConnected( QString ip, quint16 port );
-    void clientGotConnected( QString ip, quint16 port );
-    void clientGotDisconnected( QString ip, quint16 port );
-    void gotServerInfo( quint16 serverPort, QString ip, quint16 port );
-    
-  private:
-    int findConnection(const QString& ip, quint16 port, bool portIsClient=true );
-    
-    Server* m_server;
-    Client* m_client;
-    
-    QList<ConnectionObject*>* m_conList;
-};
+  m_ip = ip;
+  m_server_port = server_port;
+  m_client_port = client_port;
+  m_isConnected = connected;
+}
 
-//struct Connection {
-//  // the Ip the client and the server connect to
-//  QString ip;
-//  // the port the client connects to
-//  quint16 client_port;
-//  // the port the server connects to
-//  quint16 server_port;
-//  // state is true if the client port is set
-//  ConManager::Connected conState;
-//};
+bool ConnectionObject::isConnected()
+{
+  return m_isConnected;
+}
+
+bool ConnectionObject::hasClientInfo()
+{
+  return ( m_client_port != 0 );
+}
+
+bool ConnectionObject::hasServerInfo()
+{
+  return ( m_server_port != 0 );
+}
+
+const QString& ConnectionObject::getIp()
+{
+  return m_ip;
+}
+
+quint16 ConnectionObject::getServerPort()
+{
+  return m_server_port;
+}
+
+quint16 ConnectionObject::getClientPort()
+{
+  return m_client_port;
+}
+
+void ConnectionObject::changeServerPort(quint16 server_port)
+{
+  if( m_server_port == server_port )
+    return;
+  m_server_port = server_port;
+  emit sigChange();
+}
+
+void ConnectionObject::changeClientPort(quint16 client_port)
+{
+  if( m_client_port == client_port )
+    return;
+  m_client_port = client_port;
+  emit sigChange(); 
+}
+
+void ConnectionObject::changeConnection(bool connected)
+{
+  if( m_isConnected == connected )
+    return;
+  m_isConnected = connected;
+  emit sigChange();
+}
