@@ -22,6 +22,7 @@
 ConFilter::ConFilter(QObject* parent)
   : QSortFilterProxyModel(parent)
 {
+  setDynamicSortFilter(true);
 }
 
 bool ConFilter::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const

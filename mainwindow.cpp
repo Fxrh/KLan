@@ -16,3 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  *                                                                        *
  **************************************************************************/ 
+
+#include "mainwindow.h"
+#include "connection/conmanager.h"
+#include "model/conmodel.h"
+#include "model/confilter.h"
+#include "model/condelegate.h"
+#include <QListView>
+
+MainWindow::MainWindow(QWidget* parent)
+  : KXmlGuiWindow(parent)
+{
+  setup();
+  show();
+}
+
+void MainWindow::setup()
+{
+  m_view = new QListView(this);
+  m_model = new ConModel(this);
+  m_filter = new ConFilter(this);
+  m_delegate = new ConDelegate(this);
+  m_filter->setSourceModel(m_model);
+  m_view->setModel(m_filter);
+  m_view->setItemDelegate(m_delegate);
+  this->setCentralWidget(m_view);
+  
+}

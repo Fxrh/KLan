@@ -10,6 +10,7 @@ set( KLan_SRCS main.cpp
                mainwindow.cpp
                model/conmodel.cpp
                model/confilter.cpp
+               model/condelegate.cpp
                model/conitem.cpp
                connection/connectionobject.cpp
                connection/conmanager.cpp 

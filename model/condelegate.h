@@ -17,31 +17,23 @@
  *                                                                        *
  **************************************************************************/ 
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef CONDELEGATE_H
+#define CONDELEGATE_H
 
-#include <KXmlGuiWindow>
+#include <QStyledItemDelegate>
 
-class QListView;
-class ConManager;
-class ConModel;
-class ConFilter;
-class ConDelegate;
-
-class MainWindow : public KXmlGuiWindow
+class ConDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
   public:
-    MainWindow( QWidget* parent = 0 );
+    explicit ConDelegate( QWidget* parent=0 );
+    
+    QSize sizeHint( const QStyleOptionViewItem& option, const QModelIndex& index ) const;
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
     
   private:
-    void setup();
-    
-    QListView* m_view;
-    ConManager* m_conManager;
-    ConModel* m_model;
-    ConFilter* m_filter;
-    ConDelegate* m_delegate;
+    QFont boldFont;
+    QFont standardFont;
 };
 
-#endif // MAINWINDOW_H
+#endif //CONDELEGATE_H

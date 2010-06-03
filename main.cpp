@@ -22,7 +22,7 @@
 #include <KCmdLineArgs>
 #include <KLocale>
 
-#include "connection/conmanager.h"
+#include "mainwindow.h"
 
 int main( int argc, char* argv[] )
 {
@@ -39,6 +39,6 @@ int main( int argc, char* argv[] )
   
   KCmdLineArgs::init( argc, argv, &aboutData );
   KApplication app;
-  ConManager manager;
+  MainWindow window;
   return app.exec();
 }

@@ -17,31 +17,30 @@
  *                                                                        *
  **************************************************************************/ 
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#include "condelegate.h"
 
-#include <KXmlGuiWindow>
+#include <QPainter>
 
-class QListView;
-class ConManager;
-class ConModel;
-class ConFilter;
-class ConDelegate;
-
-class MainWindow : public KXmlGuiWindow
+ConDelegate::ConDelegate(QWidget* parent)
+  : QStyledItemDelegate(parent)
 {
-    Q_OBJECT
-  public:
-    MainWindow( QWidget* parent = 0 );
-    
-  private:
-    void setup();
-    
-    QListView* m_view;
-    ConManager* m_conManager;
-    ConModel* m_model;
-    ConFilter* m_filter;
-    ConDelegate* m_delegate;
-};
+  boldFont.setBold(true);
+}
 
-#endif // MAINWINDOW_H
+void ConDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+  QStyledItemDelegate::paint(painter, option, index);
+  QPoint originPoint = option.rect.topLeft();
+  originPoint.rx()+=5;
+  originPoint.ry()+=5;
+  painter->save();
+  painter->setFont(boldFont);
+  painter->drawText( QRect(originPoint, option.rect.bottomRight() ), index.data().toMap()["ip"].toString());
+  painter->restore();
+}
+
+QSize ConDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+  QFontMetrics metrics(boldFont);
+  return metrics.boundingRect("888.888.888.888").size() + QSize(10,10);
+}
