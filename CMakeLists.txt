@@ -9,6 +9,7 @@ include_directories( ${KDE4_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} )
 set( KLan_SRCS main.cpp
                mainwindow.cpp
                model/conmodel.cpp
+               model/conitem.cpp
                connection/connectionobject.cpp
                connection/conmanager.cpp 
                connection/server.cpp
