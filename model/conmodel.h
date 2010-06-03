@@ -16,3 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  *                                                                        *
  **************************************************************************/ 
+
+#ifndef CONMODEL_H
+#define CONMODEL_H
+
+#include <QAbstractListModel>
+
+class ConnectionObject;
+
+class ConModel : public QAbstractListModel
+{
+    Q_OBJECT
+  public:
+    ConModel( QObject* parent = 0 );
+    ~ConModel();
+    
+    void addConnection( ConnectionObject* object );
+    
+    QVariant data(const QModelIndex &index, int role) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    int rowCount(const QModelIndex &parent) const;
+    
+  private slots:
+    void infoChanged( ConnectionObject* object );
+    void gotRemoved( QObject* object );
+    
+  private:
+    QList<ConnectionObject*>* m_list;
+};
+
+#endif //CONMODEL_H

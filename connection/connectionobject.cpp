@@ -62,7 +62,7 @@ void ConnectionObject::changeServerPort(quint16 server_port)
   if( m_server_port == server_port )
     return;
   m_server_port = server_port;
-  emit sigChange();
+  emit sigChange(static_cast<ConnectionObject*>(this));
 }
 
 void ConnectionObject::changeClientPort(quint16 client_port)
@@ -70,7 +70,7 @@ void ConnectionObject::changeClientPort(quint16 client_port)
   if( m_client_port == client_port )
     return;
   m_client_port = client_port;
-  emit sigChange(); 
+  emit sigChange(static_cast<ConnectionObject*>(this)); 
 }
 
 void ConnectionObject::changeConnection(bool connected)
@@ -78,5 +78,5 @@ void ConnectionObject::changeConnection(bool connected)
   if( m_isConnected == connected )
     return;
   m_isConnected = connected;
-  emit sigChange();
+  emit sigChange(const_cast<ConnectionObject*>(this));
 }

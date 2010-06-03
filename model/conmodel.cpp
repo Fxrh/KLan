@@ -16,3 +16,77 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.  *
  *                                                                        *
  **************************************************************************/ 
+
+#include "conmodel.h"
+#include "../connection/connectionobject.h"
+
+ConModel::ConModel(QObject* parent)
+  : QAbstractListModel(parent)
+{
+  m_list = new QList<ConnectionObject*>();
+}
+
+ConModel::~ConModel()
+{
+  // we don't need to delete the list of connections, ConManager does this
+  delete m_list;
+}
+
+void ConModel::addConnection(ConnectionObject *object)
+{
+  connect( object, SIGNAL(sigChange(ConnectionObject*)), this, SLOT(infoChanged(ConnectionObject*)) );
+  connect( object, SIGNAL(destroyed(QObject*)), this, SLOT(gotRemoved(QObject*)) );
+  beginInsertRows( QModelIndex(), m_list->count(), m_list->count() );
+  m_list->append(object);
+  endInsertRows();
+}
+
+QVariant ConModel::data(const QModelIndex &index, int role) const
+{
+  if( !index.isValid() )
+    return QVariant();
+
+  if( role != Qt::DisplayRole )
+    return QVariant();  
+  
+  ConnectionObject* con = static_cast<ConnectionObject*>(index.internalPointer());
+  QMap<QString,QVariant> map;
+  map["ip"] = con->getIp();
+  map["port"] = con->getClientPort();
+  map["connected"] = con->isConnected();
+  return map;
+}
+
+Qt::ItemFlags ConModel::flags(const QModelIndex &index) const
+{
+  if( !index.isValid() )
+    return 0;
+  
+  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+int ConModel::rowCount(const QModelIndex &parent) const
+{
+  if( !parent.isValid() ){
+    return m_list->count();
+  }
+  return 0;
+}
+
+void ConModel::infoChanged(ConnectionObject *object)
+{
+  int row = m_list->indexOf(object);
+  if( row >= 0 && row < m_list->count() ){
+    emit dataChanged( index(row,0,QModelIndex()), index(row,0,QModelIndex()) );
+  }
+}
+
+void ConModel::gotRemoved(QObject *object)
+{
+  int row = m_list->indexOf(static_cast<ConnectionObject*>(object));
+  if( row >= 0 && row < m_list->count() ){
+    beginRemoveRows(QModelIndex(), row, row );
+    m_list->removeAt(row);
+    endRemoveRows();
+  }
+}

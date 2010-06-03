@@ -39,7 +39,7 @@ class ConnectionObject : public QObject
     void changeConnection( bool connected );
     
   signals:
-    void sigChange();
+    void sigChange(ConnectionObject* object);
     
   private:
     // the Ip the client and the server connect to
