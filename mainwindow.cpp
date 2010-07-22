@@ -19,20 +19,41 @@
 
 #include "mainwindow.h"
 #include "connection/conmanager.h"
+#include "connection/connectionobject.h"
 #include "model/conmodel.h"
 #include "model/confilter.h"
 #include "model/condelegate.h"
 #include <QListView>
+#include <QLabel>
+#include <KLineEdit>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QCloseEvent>
+#include <QApplication>
 
 MainWindow::MainWindow(QWidget* parent)
   : KXmlGuiWindow(parent)
 {
   setup();
+  m_conManager = new ConManager(this);
+  connect( m_conManager, SIGNAL(sigNewConnection(ConnectionObject*)), this, SLOT(gotNewConnection(ConnectionObject*)) );
   show();
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+  qApp->quit();
+  event->ignore();
+}
+
+void MainWindow::gotNewConnection(ConnectionObject* object)
+{
+  m_model->addConnection(object);
 }
 
 void MainWindow::setup()
 {
+  setupGUI();
   m_view = new QListView(this);
   m_model = new ConModel(this);
   m_filter = new ConFilter(this);
@@ -40,6 +61,21 @@ void MainWindow::setup()
   m_filter->setSourceModel(m_model);
   m_view->setModel(m_filter);
   m_view->setItemDelegate(m_delegate);
-  this->setCentralWidget(m_view);
   
+  m_connectLb = new QLabel("Connect: ");
+  m_ipEdit = new KLineEdit("127.0.0.1");
+  m_colonLb = new QLabel(":");
+  m_portEdit = new KLineEdit("47639");
+  
+  m_connectLayout = new QHBoxLayout();
+  m_connectLayout->addWidget(m_connectLb);
+  m_connectLayout->addWidget(m_ipEdit);
+  m_connectLayout->addWidget(m_colonLb);
+  m_connectLayout->addWidget(m_portEdit);
+  m_mainLayout = new QVBoxLayout();
+  m_mainLayout->addWidget(m_view);
+  m_mainLayout->addLayout(m_connectLayout);
+  m_centralWid = new QWidget();
+  m_centralWid->setLayout(m_mainLayout);
+  setCentralWidget(m_centralWid);
 }

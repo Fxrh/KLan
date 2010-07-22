@@ -37,7 +37,7 @@ ClientConnection::ClientConnection(QObject *parent)
   m_reconnectTimer = 0;
   m_inactiveTimer = 0;
   m_port = 0;
-  m_pingTimer = startTimer(15000);
+  //m_pingTimer = startTimer(15000);
   
   connect( m_socket, SIGNAL(connected()), this, SLOT(gotConnected()) );
   connect( m_socket, SIGNAL(disconnected()), this, SLOT(gotDisconnected()) );
@@ -132,6 +132,7 @@ void ClientConnection::gotConnected()
   killTimer(m_inactiveTimer);
   m_inactiveTimer = 0;
   m_isInactive = false;
+  m_pingTimer = startTimer(15000);
 }
 
 void ClientConnection::gotDisconnected()

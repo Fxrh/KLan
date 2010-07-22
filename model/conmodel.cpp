@@ -19,6 +19,7 @@
 
 #include "conmodel.h"
 #include "../connection/connectionobject.h"
+#include <KDebug>
 
 ConModel::ConModel(QObject* parent)
   : QAbstractListModel(parent)
@@ -28,8 +29,10 @@ ConModel::ConModel(QObject* parent)
 
 ConModel::~ConModel()
 {
+  kDebug();
   // we don't need to delete the list of connections, ConManager does this
   delete m_list;
+  kDebug() << "Deleted.";
 }
 
 void ConModel::addConnection(ConnectionObject *object)
@@ -47,9 +50,13 @@ QVariant ConModel::data(const QModelIndex &index, int role) const
     return QVariant();
 
   if( role != Qt::DisplayRole )
-    return QVariant();  
+    return QVariant();
   
-  ConnectionObject* con = static_cast<ConnectionObject*>(index.internalPointer());
+  int row = index.row();
+  if( row < 0 || row >= m_list->count() )
+    return QVariant();
+  
+  ConnectionObject* con = m_list->at(row);  //static_cast<ConnectionObject*>(index.internalPointer());
   QMap<QString,QVariant> map;
   map["ip"] = con->getIp();
   map["port"] = con->getClientPort();

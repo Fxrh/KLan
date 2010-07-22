@@ -35,12 +35,13 @@ void ConDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, c
   originPoint.ry()+=5;
   painter->save();
   painter->setFont(boldFont);
-  painter->drawText( QRect(originPoint, option.rect.bottomRight() ), index.data().toMap()["ip"].toString());
+  QString address = index.data().toMap()["ip"].toString()+":"+QString::number(index.data().toMap()["port"].toUInt());
+  painter->drawText( QRect(originPoint, option.rect.bottomRight() ), address);
   painter->restore();
 }
 
 QSize ConDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   QFontMetrics metrics(boldFont);
-  return metrics.boundingRect("888.888.888.888").size() + QSize(10,10);
+  return metrics.boundingRect("888.888.888.888:88888").size() + QSize(10,10);
 }

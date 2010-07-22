@@ -23,7 +23,7 @@
 
 class Server;
 class Client;
-struct Connection;
+//struct Connection;
 
 class ConManager : public QObject
 {
@@ -32,6 +32,12 @@ class ConManager : public QObject
     enum Connected { connected, notConnected };
     ConManager( QObject* parent = 0 );
     ~ConManager();
+    
+    void startServer( quint16 port );
+    void tryConnect( const QString& ip, quint16 port );
+    
+  signals:
+    void sigNewConnection( ConnectionObject* object );
     
   private slots:
     void serverGotConnected( QString ip, quint16 port );

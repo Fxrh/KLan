@@ -22,17 +22,28 @@
 
 #include <KXmlGuiWindow>
 
+class QLabel;
+class KLineEdit;
 class QListView;
+class QHBoxLayout;
+class QVBoxLayout;
 class ConManager;
 class ConModel;
 class ConFilter;
 class ConDelegate;
+class ConnectionObject;
 
 class MainWindow : public KXmlGuiWindow
 {
     Q_OBJECT
   public:
     MainWindow( QWidget* parent = 0 );
+    
+  protected:
+    void closeEvent(QCloseEvent* event);
+    
+  private slots:
+    void gotNewConnection(ConnectionObject*);
     
   private:
     void setup();
@@ -42,6 +53,15 @@ class MainWindow : public KXmlGuiWindow
     ConModel* m_model;
     ConFilter* m_filter;
     ConDelegate* m_delegate;
+    
+    QLabel * m_connectLb;
+    KLineEdit* m_ipEdit;
+    QLabel* m_colonLb;
+    KLineEdit* m_portEdit;
+    QHBoxLayout* m_connectLayout;
+    QVBoxLayout* m_mainLayout;
+    QWidget* m_centralWid;
+    
 };
 
 #endif // MAINWINDOW_H
