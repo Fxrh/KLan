@@ -33,7 +33,8 @@ class ConManager : public QObject
     ConManager( QObject* parent = 0 );
     ~ConManager();
     
-    void startServer( quint16 port );
+    bool startServer( quint16 port );
+    void stopServer();
     void tryConnect( const QString& ip, quint16 port );
     
   signals:

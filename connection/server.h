@@ -34,12 +34,13 @@ class Server : public QObject
     Server( QObject* parent=0 );
     ~Server();
     
-    void startServer( quint16 port );
+    bool startServer( quint16 port );
     void removeConnection( const QString& ip, quint16 port );
     quint16 serverPort() const { return m_port; } 
+    bool isStarted() const { return m_started; }
     
   public slots:
-    void startServer();
+    bool startServer();
     void stopServer();
     
   signals:

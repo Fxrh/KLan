@@ -31,8 +31,8 @@ ConManager::ConManager( QObject* parent )
   m_client = new Client(this);
   m_conList = new QList<ConnectionObject*>();
   
-  m_server->startServer(22786);
-  m_client->connectTo("127.0.0.1", 67352);
+  //m_server->startServer(67352);
+  //m_client->connectTo("127.0.0.1", 22786);
   
   connect( m_server, SIGNAL(sigNewConnection(QString,quint16)), this, SLOT(serverGotConnected(QString,quint16)) );
   connect( m_client, SIGNAL(newConnection(QString,quint16)), this, SLOT(clientGotConnected(QString,quint16)) );
@@ -48,14 +48,22 @@ ConManager::~ConManager()
   kDebug() << "Deleted.";
 }
 
-void ConManager::startServer(quint16 port)
+bool ConManager::startServer(quint16 port)
 {
-  m_server->startServer(port);
+  return m_server->startServer(port);
+}
+
+void ConManager::stopServer()
+{
+  m_server->stopServer();
+  m_client->disconnectAll();
 }
 
 void ConManager::tryConnect(const QString &ip, quint16 port)
 {
-  m_client->connectTo(ip, port);
+  if( m_server->isStarted() ){
+    m_client->connectTo(ip, port);
+  }
 }
 
 void ConManager::serverGotConnected(QString ip, quint16 port)

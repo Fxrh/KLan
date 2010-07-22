@@ -26,6 +26,7 @@
 #include <QListView>
 #include <QLabel>
 #include <KLineEdit>
+#include <KPushButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QCloseEvent>
@@ -37,6 +38,8 @@ MainWindow::MainWindow(QWidget* parent)
   setup();
   m_conManager = new ConManager(this);
   connect( m_conManager, SIGNAL(sigNewConnection(ConnectionObject*)), this, SLOT(gotNewConnection(ConnectionObject*)) );
+  connect( m_connectBtn, SIGNAL(clicked()), this, SLOT(tryConnect()) );
+  connect( m_startServer, SIGNAL(clicked()), this, SLOT(startServer()) );
   show();
 }
 
@@ -51,6 +54,27 @@ void MainWindow::gotNewConnection(ConnectionObject* object)
   m_model->addConnection(object);
 }
 
+void MainWindow::tryConnect()
+{
+  m_conManager->tryConnect( m_ipEdit->text(), quint16(m_portEdit->text().toUInt()) );
+}
+
+void MainWindow::startServer()
+{
+  if( m_myPortEdit->isEnabled() ){
+    if( m_conManager->startServer( m_myPortEdit->text().toUInt() ) ){
+      m_myPortEdit->setEnabled(false);
+      m_startServer->setText("Stop");
+      m_connectBtn->setEnabled(true);
+    }
+  } else {
+    m_conManager->stopServer();
+    m_startServer->setText("Start");
+    m_myPortEdit->setEnabled(true);
+    m_connectBtn->setEnabled(false);
+  }
+}
+
 void MainWindow::setup()
 {
   setupGUI();
@@ -62,19 +86,31 @@ void MainWindow::setup()
   m_view->setModel(m_filter);
   m_view->setItemDelegate(m_delegate);
   
-  m_connectLb = new QLabel("Connect: ");
+  //m_connectLb = new QLabel("Connect: ");
   m_ipEdit = new KLineEdit("127.0.0.1");
   m_colonLb = new QLabel(":");
   m_portEdit = new KLineEdit("47639");
+  m_connectBtn = new KPushButton("Connect");
+  m_connectBtn->setEnabled(false);
+  
+  m_myPortLb = new QLabel("My port:");
+  m_myPortEdit = new KLineEdit("47639");
+  m_startServer = new KPushButton("Start");
   
   m_connectLayout = new QHBoxLayout();
-  m_connectLayout->addWidget(m_connectLb);
+  //m_connectLayout->addWidget(m_connectLb);
   m_connectLayout->addWidget(m_ipEdit);
   m_connectLayout->addWidget(m_colonLb);
   m_connectLayout->addWidget(m_portEdit);
+  m_connectLayout->addWidget(m_connectBtn);
+  m_serverLayout = new QHBoxLayout();
+  m_serverLayout->addWidget(m_myPortLb);
+  m_serverLayout->addWidget(m_myPortEdit);
+  m_serverLayout->addWidget(m_startServer);
   m_mainLayout = new QVBoxLayout();
   m_mainLayout->addWidget(m_view);
   m_mainLayout->addLayout(m_connectLayout);
+  m_mainLayout->addLayout(m_serverLayout);
   m_centralWid = new QWidget();
   m_centralWid->setLayout(m_mainLayout);
   setCentralWidget(m_centralWid);

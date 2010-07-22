@@ -24,6 +24,7 @@
 
 class QLabel;
 class KLineEdit;
+class KPushButton;
 class QListView;
 class QHBoxLayout;
 class QVBoxLayout;
@@ -44,6 +45,8 @@ class MainWindow : public KXmlGuiWindow
     
   private slots:
     void gotNewConnection(ConnectionObject*);
+    void tryConnect();
+    void startServer();
     
   private:
     void setup();
@@ -53,14 +56,20 @@ class MainWindow : public KXmlGuiWindow
     ConModel* m_model;
     ConFilter* m_filter;
     ConDelegate* m_delegate;
-    
-    QLabel * m_connectLb;
+    //QLabel * m_connectLb;
     KLineEdit* m_ipEdit;
     QLabel* m_colonLb;
     KLineEdit* m_portEdit;
+    KPushButton* m_connectBtn;
+    QLabel* m_myPortLb;
+    KLineEdit* m_myPortEdit;
+    KPushButton* m_startServer;
     QHBoxLayout* m_connectLayout;
+    QHBoxLayout* m_serverLayout;
     QVBoxLayout* m_mainLayout;
     QWidget* m_centralWid;
+    
+    bool isStarted;
     
 };
 

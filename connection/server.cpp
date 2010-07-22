@@ -44,14 +44,14 @@ Server::~Server()
   delete m_connectList;
 }
 
-void Server::startServer(quint16 port)
+bool Server::startServer(quint16 port)
 {
   if( m_started ){
     stopServer();
   }
   m_port = port;
   m_started = false;
-  startServer();
+  return startServer();
 }
 
 void Server::removeConnection(const QString &ip, quint16 port)
@@ -65,16 +65,18 @@ void Server::removeConnection(const QString &ip, quint16 port)
   }
 }
 
-void Server::startServer()
+bool Server::startServer()
 {
   if( m_started ){
-    return;
+    return true;
   }
   if( m_server->listen(QHostAddress::Any, m_port) ){
     m_started = true;
     kDebug() << "Started.";
+    return true;
   } else {
     kWarning() << "Could not start server!";
+    return false;
   }
 }
 
@@ -83,6 +85,7 @@ void Server::stopServer()
   m_server->close();
   m_started = false;
   qDeleteAll(*m_connectList);
+  m_connectList->clear();
   kDebug() << "Stopped.";
 }
 
@@ -148,7 +151,7 @@ ServerConnection* Server::findConnection( const QString& hostIp, quint16 port )
 {
   ServerConnection* connection = 0;
   foreach( ServerConnection* con, *m_connectList ){
-    kDebug() << con->getIp() << con->getPort();
+    //kDebug() << con->getIp() << QString(con->getPort());
     if( (con->getIp() == hostIp) && (con->getPort() == port) ){
       connection = con;
       break;
