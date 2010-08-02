@@ -17,62 +17,10 @@
  *                                                                        *
  **************************************************************************/ 
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#include "trayicon.h"
 
-#include <KXmlGuiWindow>
-
-class QLabel;
-class KLineEdit;
-class KPushButton;
-class QListView;
-class QHBoxLayout;
-class QVBoxLayout;
-class ConManager;
-class ConModel;
-class ConFilter;
-class ConDelegate;
-class ConnectionObject;
-class TrayIcon;
-
-class MainWindow : public KXmlGuiWindow
+TrayIcon::TrayIcon(QObject* parent)
+  : KStatusNotifierItem(parent)
 {
-    Q_OBJECT
-  public:
-    MainWindow( QWidget* parent = 0 );
-    
-  protected:
-    void closeEvent(QCloseEvent* event);
-    
-  private slots:
-    void gotNewConnection(ConnectionObject*);
-    void tryConnect();
-    void startServer();
-    
-  private:
-    void setup();
-    
-    QListView* m_view;
-    ConManager* m_conManager;
-    ConModel* m_model;
-    ConFilter* m_filter;
-    ConDelegate* m_delegate;
-    TrayIcon* m_trayIcon;
-    //QLabel * m_connectLb;
-    KLineEdit* m_ipEdit;
-    QLabel* m_colonLb;
-    KLineEdit* m_portEdit;
-    KPushButton* m_connectBtn;
-    QLabel* m_myPortLb;
-    KLineEdit* m_myPortEdit;
-    KPushButton* m_startServer;
-    QHBoxLayout* m_connectLayout;
-    QHBoxLayout* m_serverLayout;
-    QVBoxLayout* m_mainLayout;
-    QWidget* m_centralWid;
-    
-    bool isStarted;
-    
-};
-
-#endif // MAINWINDOW_H
+  setIconByName("klan");
+}

@@ -18,6 +18,7 @@
  **************************************************************************/ 
 
 #include "mainwindow.h"
+#include "trayicon.h"
 #include "connection/conmanager.h"
 #include "connection/connectionobject.h"
 #include "model/conmodel.h"
@@ -85,6 +86,7 @@ void MainWindow::setup()
   m_filter->setSourceModel(m_model);
   m_view->setModel(m_filter);
   m_view->setItemDelegate(m_delegate);
+  m_trayIcon = new TrayIcon(this);
   
   //m_connectLb = new QLabel("Connect: ");
   m_ipEdit = new KLineEdit("127.0.0.1");

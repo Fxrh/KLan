@@ -8,6 +8,7 @@ include_directories( ${KDE4_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} )
 
 set( KLan_SRCS main.cpp
                mainwindow.cpp
+               trayicon.cpp
                model/conmodel.cpp
                model/confilter.cpp
                model/condelegate.cpp
