@@ -102,7 +102,7 @@ void Server::gotNewMessage()
       }
       if( cmd == connection::Mess_Chat ){
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
-        emit sigChatMessage(msg);
+        emit sigChatMessage(msg, connection->getIp(), connection->getPort() );
         kDebug() << "Chat:" << msg;
         continue;
       }

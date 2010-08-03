@@ -108,6 +108,8 @@ void ChatWindow::connectionDestroyed()
   m_chatConnection = 0;
   if( isHidden() ){
     emit sigDestroy(this);
+  } else {
+    writeMessage( StatusMess, "Conversation definitively closed. Open a new chat window after reconnecting");
   }
 }
 

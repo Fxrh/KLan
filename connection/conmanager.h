@@ -37,14 +37,19 @@ class ConManager : public QObject
     void stopServer();
     void tryConnect( const QString& ip, quint16 port );
     
+  public slots:
+    void sendChatMessage( QString message, ConnectionObject* connection );
+    
   signals:
     void sigNewConnection( ConnectionObject* object );
+    void sigChatMessage( QString message, ConnectionObject* connection );
     
   private slots:
-    void serverGotConnected( QString ip, quint16 port );
-    void clientGotConnected( QString ip, quint16 port );
-    void clientGotDisconnected( QString ip, quint16 port );
-    void gotServerInfo( quint16 serverPort, QString ip, quint16 port );
+    void serverGotConnected( QString ip, quint16 serverPort );
+    void clientGotConnected( QString ip, quint16 clientPort );
+    void clientGotDisconnected( QString ip, quint16 clientPort );
+    void gotServerInfo( quint16 clientPort, QString ip, quint16 serverPort );
+    void gotChatMessage( QString message, QString ip, quint16 serverPort );
     
   private:
     int findConnection(const QString& ip, quint16 port, bool portIsClient=true );

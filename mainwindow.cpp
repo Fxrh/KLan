@@ -41,8 +41,9 @@ MainWindow::MainWindow(QWidget* parent)
 {
   setup();
   m_conManager = new ConManager(this);
-  m_chatMap = new QMap<QString, ChatWindow*>();
+  m_chatMap = new QMap<ConnectionObject*, ChatWindow*>();
   connect( m_conManager, SIGNAL(sigNewConnection(ConnectionObject*)), this, SLOT(gotNewConnection(ConnectionObject*)) );
+  connect( m_conManager, SIGNAL(sigChatMessage(QString,ConnectionObject*)), this, SLOT(gotChatMessage(QString,ConnectionObject*)) );
   connect( m_connectBtn, SIGNAL(clicked()), this, SLOT(tryConnect()) );
   connect( m_startServer, SIGNAL(clicked()), this, SLOT(startServer()) );
   connect( m_view, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)) );
@@ -99,25 +100,43 @@ void MainWindow::openChat( QModelIndex index )
   openChat( connection );
 }
 
-void MainWindow::openChat(ConnectionObject *object)
+ChatWindow* MainWindow::openChat(ConnectionObject *object)
 {
-  QString key( object->getIp() + ":" + QString::number(object->getClientPort()) );
-  ChatWindow* chatWindow = m_chatMap->value(key, 0);
+  ChatWindow* chatWindow = m_chatMap->value(object, 0);
   if( chatWindow == 0 ){
     chatWindow = new ChatWindow("Me", object);
-    m_chatMap->insert(key, chatWindow);
+    connect( chatWindow, SIGNAL(sigDestroy(ChatWindow*)), this, SLOT(deleteChat(ChatWindow*)) );
+    connect( chatWindow, SIGNAL(sigMessage(QString,ConnectionObject*)), m_conManager, SLOT(sendChatMessage(QString,ConnectionObject*)) );
+    m_chatMap->insert(object, chatWindow);
   }
   chatWindow->show();
   kDebug() << "Done";
+  return chatWindow;
 }
 
 void MainWindow::deleteChat(ChatWindow *window)
 {
-  QString key = m_chatMap->key(window, "");
-  if( key != "" ){
+  ConnectionObject* key = m_chatMap->key(window, 0);
+  if( key != 0 ){
     m_chatMap->remove(key);
   }
   delete window;
+}
+
+void MainWindow::gotChatMessage(QString message, ConnectionObject *connection)
+{
+//  ChatWindow* window = m_chatMap->value(connection, 0);
+//  kDebug() << connection;
+//  if( window == 0 ){
+//    window = new ChatWindow("Me", connection);
+//    connect( window, SIGNAL(sigDestroy(ChatWindow*)), this, SLOT(deleteChat(ChatWindow*)) );
+//    connect( window, SIGNAL(sigMessage(QString,ConnectionObject*)), m_conManager, SLOT(sendChatMessage(QString,ConnectionObject*)) );
+//    m_chatMap->insert(connection, window)
+//  }
+//  window->newMessage(message);
+//  window->show();
+  ChatWindow* window = openChat(connection);
+  window->newMessage(message);
 }
 
 void MainWindow::showContextMenu(QPoint point)

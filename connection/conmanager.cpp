@@ -38,6 +38,7 @@ ConManager::ConManager( QObject* parent )
   connect( m_client, SIGNAL(newConnection(QString,quint16)), this, SLOT(clientGotConnected(QString,quint16)) );
   connect( m_client, SIGNAL(lostConnection(QString,quint16)), this, SLOT(clientGotDisconnected(QString,quint16)) );
   connect( m_server, SIGNAL(sigServer(quint16,QString,quint16)), this, SLOT(gotServerInfo(quint16,QString,quint16)) );
+  connect( m_server, SIGNAL(sigChatMessage(QString,QString,quint16)), this, SLOT(gotChatMessage(QString,QString,quint16)) );
 }
 
 ConManager::~ConManager()
@@ -70,20 +71,33 @@ void ConManager::tryConnect(const QString &ip, quint16 port)
   }
 }
 
-void ConManager::serverGotConnected(QString ip, quint16 port)
+void ConManager::sendChatMessage(QString message, ConnectionObject *connection)
 {
-  kDebug() << ip << port;
-  if( findConnection(ip, port, false) != -1 ){
+  if( !m_conList->contains(connection) ){
+    kDebug() << "This is no legal connection";
     return;
   }
-  ConnectionObject* conn = new ConnectionObject(ip, port, 0, false); //{ ip, 0, port, notConnected };
+  if( !connection->isConnected() ){
+    kDebug() << "Connection is offline";
+    return;
+  }
+  m_client->sendChatMessage( message, connection->getIp(), connection->getClientPort() );
+}
+
+void ConManager::serverGotConnected(QString ip, quint16 serverPort)
+{
+  kDebug() << ip << serverPort;
+  if( findConnection(ip, serverPort, false) != -1 ){
+    return;
+  }
+  ConnectionObject* conn = new ConnectionObject(ip, serverPort, 0, false); //{ ip, 0, port, notConnected };
   m_conList->push_back(conn);
   emit sigNewConnection(conn);
 }
 
-void ConManager::clientGotConnected(QString ip, quint16 port)
+void ConManager::clientGotConnected(QString ip, quint16 clientPort)
 {
-  int id = findConnection(ip, port);
+  int id = findConnection(ip, clientPort);
   if( id != -1 ){
 //    if( m_conList->at(id).conState == notConnected ){
 //      (*m_conList)[id].conState = connected;
@@ -92,20 +106,20 @@ void ConManager::clientGotConnected(QString ip, quint16 port)
 //    }
     if( !m_conList->at(id)->isConnected() ){
       m_conList->at(id)->changeConnection(true);
-      kDebug() << "Connection online:" << ip << port;
-      m_client->sendServerInfo( m_server->serverPort(), ip, port );
+      kDebug() << "Connection online:" << ip << clientPort;
+      m_client->sendServerInfo( m_server->serverPort(), ip, clientPort );
     }
     return;
   }
-  ConnectionObject* conn = new ConnectionObject(ip, 0, port, true ); //{ ip, port, 0, connected };
+  ConnectionObject* conn = new ConnectionObject(ip, 0, clientPort, true ); //{ ip, port, 0, connected };
   m_conList->push_back(conn);
   emit sigNewConnection(conn);
-  m_client->sendServerInfo( m_server->serverPort(), ip, port );
+  m_client->sendServerInfo( m_server->serverPort(), ip, clientPort );
 }
 
-void ConManager::clientGotDisconnected(QString ip, quint16 port)
+void ConManager::clientGotDisconnected(QString ip, quint16 clientPort)
 {
-  int id = findConnection( ip, port );
+  int id = findConnection( ip, clientPort );
   if( id == -1 ){
     return;
   }
@@ -116,27 +130,35 @@ void ConManager::clientGotDisconnected(QString ip, quint16 port)
   m_conList->removeAt(id);
 }
 
-void ConManager::gotServerInfo(quint16 serverPort, QString ip, quint16 port)
+void ConManager::gotServerInfo(quint16 clientPort, QString ip, quint16 serverPort)
 {
-  kDebug() << "serverPort:" << serverPort << "Ip:" << ip << "Port:" << port;
-  int newId = findConnection( ip, port, false );
+  kDebug() << "clientPort:" << clientPort << "Ip:" << ip << "Port:" << serverPort;
+  int newId = findConnection( ip, serverPort, false );
   if( newId == -1 ){
-    kDebug() << "You don't exist, go away!" << ip << port;
+    kDebug() << "You don't exist, go away!" << ip << serverPort;
     return;
   }
-  int oldId = findConnection( ip, serverPort );
+  int oldId = findConnection( ip, clientPort );
   if( oldId != -1 ){
     // we already have a connection to that server
     delete m_conList->at(newId);
     m_conList->removeAt(newId);
     if( m_conList->at(oldId)->getServerPort() == 0 ){
-      (*m_conList)[oldId]->changeServerPort(port);
+      (*m_conList)[oldId]->changeServerPort(serverPort);
       kDebug() << "Added Server to client connection";
     }
   } else {
-    (*m_conList)[newId]->changeClientPort(serverPort); // client_port is the port the client connects to!!
-    m_client->connectTo(ip, serverPort );
+    (*m_conList)[newId]->changeClientPort(clientPort); // client_port is the port the client connects to!!
+    m_client->connectTo(ip, clientPort );
     kDebug() << "Added Client to server connection";
+  }
+}
+
+void ConManager::gotChatMessage(QString message, QString ip, quint16 serverPort)
+{
+  int num = findConnection( ip, serverPort, false );
+  if( num != -1 ){
+    emit sigChatMessage( message, m_conList->at(num) );
   }
 }
 

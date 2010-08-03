@@ -38,7 +38,6 @@ ClientConnection::ClientConnection( const QString& hostIp, quint16 port, QObject
   m_isInactive = false;
   m_reconnectTimer = 0;
   m_inactiveTimer = 0;
-  m_port = 0;
   //m_pingTimer = startTimer(15000);
   
   connect( m_socket, SIGNAL(connected()), this, SLOT(gotConnected()) );
