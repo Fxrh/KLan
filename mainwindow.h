@@ -21,6 +21,7 @@
 #define MAINWINDOW_H
 
 #include <KXmlGuiWindow>
+#include <QModelIndex>
 
 class QLabel;
 class KLineEdit;
@@ -34,12 +35,14 @@ class ConFilter;
 class ConDelegate;
 class ConnectionObject;
 class TrayIcon;
+class ChatWindow;
 
 class MainWindow : public KXmlGuiWindow
 {
     Q_OBJECT
   public:
     MainWindow( QWidget* parent = 0 );
+    ~MainWindow();
     
   protected:
     void closeEvent(QCloseEvent* event);
@@ -48,6 +51,10 @@ class MainWindow : public KXmlGuiWindow
     void gotNewConnection(ConnectionObject*);
     void tryConnect();
     void startServer();
+    void openChat( QModelIndex index );
+    void openChat( ConnectionObject* object );
+    void deleteChat( ChatWindow* window );
+    void showContextMenu( QPoint point );
     
   private:
     void setup();
@@ -72,6 +79,7 @@ class MainWindow : public KXmlGuiWindow
     QWidget* m_centralWid;
     
     bool isStarted;
+    QMap<QString, ChatWindow*>* m_chatMap;
     
 };
 

@@ -19,11 +19,13 @@
 
 #include "mainwindow.h"
 #include "trayicon.h"
+#include "chatwindow.h"
 #include "connection/conmanager.h"
 #include "connection/connectionobject.h"
 #include "model/conmodel.h"
 #include "model/confilter.h"
 #include "model/condelegate.h"
+#include "model/conitem.h"
 #include <QListView>
 #include <QLabel>
 #include <KLineEdit>
@@ -32,16 +34,27 @@
 #include <QVBoxLayout>
 #include <QCloseEvent>
 #include <QApplication>
+#include <KDebug>
 
 MainWindow::MainWindow(QWidget* parent)
   : KXmlGuiWindow(parent)
 {
   setup();
   m_conManager = new ConManager(this);
+  m_chatMap = new QMap<QString, ChatWindow*>();
   connect( m_conManager, SIGNAL(sigNewConnection(ConnectionObject*)), this, SLOT(gotNewConnection(ConnectionObject*)) );
   connect( m_connectBtn, SIGNAL(clicked()), this, SLOT(tryConnect()) );
   connect( m_startServer, SIGNAL(clicked()), this, SLOT(startServer()) );
+  connect( m_view, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)) );
+  connect( m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChat(QModelIndex)) );
   show();
+}
+
+MainWindow::~MainWindow()
+{
+  qDeleteAll(*m_chatMap);
+  m_chatMap->clear();
+  delete m_chatMap;
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -74,6 +87,42 @@ void MainWindow::startServer()
     m_myPortEdit->setEnabled(true);
     m_connectBtn->setEnabled(false);
   }
+}
+
+void MainWindow::openChat( QModelIndex index )
+{
+  ConnectionObject* connection = m_model->getConnection(index);
+  if( connection == 0 ){
+    kDebug() << "We got a null-pointer for the connection object";
+    return;
+  }
+  openChat( connection );
+}
+
+void MainWindow::openChat(ConnectionObject *object)
+{
+  QString key( object->getIp() + ":" + QString::number(object->getClientPort()) );
+  ChatWindow* chatWindow = m_chatMap->value(key, 0);
+  if( chatWindow == 0 ){
+    chatWindow = new ChatWindow("Me", object);
+    m_chatMap->insert(key, chatWindow);
+  }
+  chatWindow->show();
+  kDebug() << "Done";
+}
+
+void MainWindow::deleteChat(ChatWindow *window)
+{
+  QString key = m_chatMap->key(window, "");
+  if( key != "" ){
+    m_chatMap->remove(key);
+  }
+  delete window;
+}
+
+void MainWindow::showContextMenu(QPoint point)
+{
+  
 }
 
 void MainWindow::setup()

@@ -44,6 +44,14 @@ void ConModel::addConnection(ConnectionObject *object)
   endInsertRows();
 }
 
+ConnectionObject* ConModel::getConnection( QModelIndex index )
+{
+  if( !index.isValid() || index.row() < 0 || index.row() >= m_list->count() ){
+    return 0;
+  }
+  return m_list->at(index.row());
+}
+
 QVariant ConModel::data(const QModelIndex &index, int role) const
 {
   if( !index.isValid() )

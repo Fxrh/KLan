@@ -54,6 +54,7 @@ ConnectionObject* ConItem::connection()
 {
   if( m_isRoot ){
     kDebug() << "Root has no connection object...";
+    return 0;
   }
   return m_connection;
 }

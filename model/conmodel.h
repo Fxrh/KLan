@@ -32,6 +32,7 @@ class ConModel : public QAbstractListModel
     ~ConModel();
     
     void addConnection( ConnectionObject* object );
+    ConnectionObject* getConnection( QModelIndex index );
     
     QVariant data(const QModelIndex &index, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
