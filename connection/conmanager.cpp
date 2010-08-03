@@ -142,11 +142,11 @@ void ConManager::gotServerInfo(quint16 clientPort, QString ip, quint16 serverPor
   if( oldId != -1 ){
     // we already have a connection to that server
     delete m_conList->at(newId);
-    m_conList->removeAt(newId);
     if( m_conList->at(oldId)->getServerPort() == 0 ){
       (*m_conList)[oldId]->changeServerPort(serverPort);
       kDebug() << "Added Server to client connection";
     }
+    m_conList->removeAt(newId);
   } else {
     (*m_conList)[newId]->changeClientPort(clientPort); // client_port is the port the client connects to!!
     m_client->connectTo(ip, clientPort );
