@@ -39,7 +39,9 @@ Client::Client(QObject *parent)
 
 Client::~Client()
 {
-  disconnectAll();
+  stop();
+  qDeleteAll(*m_connectList);
+  m_connectList->clear();
   delete m_connectList;
 }
 
@@ -67,9 +69,18 @@ void Client::connectTo(const QString &hostIp, quint16 port)
   }
 }
 
-void Client::disconnectAll()
+void Client::start()
 {
-  qDeleteAll(*m_connectList);
+  foreach( ClientConnection* connection, *m_connectList ){
+    connection->startClient();
+  }
+}
+
+void Client::stop()
+{
+  foreach( ClientConnection* connection, *m_connectList ){
+    connection->stopClient();
+  }
 }
 
 void Client::sendChatMessage(const QString &message, const QString &ip, quint16 port)

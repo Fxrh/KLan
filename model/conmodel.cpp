@@ -98,6 +98,7 @@ void ConModel::infoChanged(ConnectionObject *object)
 
 void ConModel::gotRemoved(QObject *object)
 {
+  kDebug();
   int row = m_list->indexOf(static_cast<ConnectionObject*>(object));
   if( row >= 0 && row < m_list->count() ){
     beginRemoveRows(QModelIndex(), row, row );

@@ -50,13 +50,17 @@ ConManager::~ConManager()
 
 bool ConManager::startServer(quint16 port)
 {
-  return m_server->startServer(port);
+  bool started = m_server->startServer(port);
+  if( started ){
+    m_client->start();
+  }
+  return started;
 }
 
 void ConManager::stopServer()
 {
   m_server->stopServer();
-  m_client->disconnectAll();
+  m_client->stop();
 }
 
 void ConManager::tryConnect(const QString &ip, quint16 port)

@@ -36,7 +36,8 @@ class Client : public QObject
     
     void startBroadcast( quint16 port );
     void connectTo( const QString& hostIp, quint16 port );
-    void disconnectAll();
+    void start();
+    void stop();
     
     void sendChatMessage(const QString& message, const QString& ip, quint16 port );
     void sendShortMessage( const QString& message, const QString& ip, quint16 port );
