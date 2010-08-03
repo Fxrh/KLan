@@ -30,9 +30,8 @@ class ClientConnection : public QObject
 {
     Q_OBJECT
   public:
-    ClientConnection( QObject* parent=0 );
+    ClientConnection( const QString& hostIp, quint16 port, QObject* parent=0 );
     
-    void startClient( const QString& hostIp, quint16 port );
     const QString& getIp();
     quint16 getPort() { return m_port; }
     bool isConnected() { return m_connected; }

@@ -26,9 +26,11 @@
 #include <QTimerEvent>
 #include <KDebug>
 
-ClientConnection::ClientConnection(QObject *parent)
+ClientConnection::ClientConnection( const QString& hostIp, quint16 port, QObject *parent)
   : QObject(parent)
 {
+  m_hostIp = hostIp;
+  m_port = port;
   m_socket = new QTcpSocket(this);
   m_connected = false;
   m_started = false;
@@ -44,18 +46,18 @@ ClientConnection::ClientConnection(QObject *parent)
   
   m_inactiveTimer = startTimer(2*60*1000);
 }
-
-void ClientConnection::startClient(const QString &hostIp, quint16 port)
-{
-  m_hostIp = hostIp;
-  m_port = port;
-  if( m_started ){
-    stopClient();
-    m_directReconnect = true;
-  } else {
-    startClient();
-  }
-}
+//
+//void ClientConnection::startClient(const QString &hostIp, quint16 port)
+//{
+//  m_hostIp = hostIp;
+//  m_port = port;
+//  if( m_started ){
+//    stopClient();
+//    m_directReconnect = true;
+//  } else {
+//    startClient();
+//  }
+//}
 
 const QString& ClientConnection::getIp()
 {

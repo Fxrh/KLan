@@ -59,8 +59,8 @@ void Client::connectTo(const QString &hostIp, quint16 port)
   ClientConnection* connection = findConnection( hostIp, port );
   if( connection == 0 ){
     kDebug() << "Creating new client";
-    connection = new ClientConnection();
-    connection->startClient(hostIp, port);
+    connection = new ClientConnection(hostIp, port);
+    connection->startClient();
     m_connectList->push_back(connection);
     connect( connection, SIGNAL(sigConnect()), this, SLOT(gotConnected()) );
     connect( connection, SIGNAL(sigDisconnect()), this, SLOT(gotDisconnected()) );
