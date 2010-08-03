@@ -42,6 +42,7 @@ class ConManager : public QObject
     
   signals:
     void sigNewConnection( ConnectionObject* object );
+    void sigConnectionUpdated( ConnectionObject* object );
     void sigChatMessage( QString message, ConnectionObject* connection );
     
   private slots:

@@ -151,6 +151,7 @@ void ConManager::gotServerInfo(quint16 clientPort, QString ip, quint16 serverPor
     (*m_conList)[newId]->changeClientPort(clientPort); // client_port is the port the client connects to!!
     m_client->connectTo(ip, clientPort );
     kDebug() << "Added Client to server connection";
+    emit sigConnectionUpdated( m_conList->at(newId) );
   }
 }
 

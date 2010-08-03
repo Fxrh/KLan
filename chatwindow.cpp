@@ -58,6 +58,19 @@ void ChatWindow::conNameChanged(QString name)
   m_conName = name;
 }
 
+void ChatWindow::updateConnection(ConnectionObject *connection)
+{
+  if( connection == m_chatConnection ){
+    return;
+  }
+  disconnect( this, SLOT(connectionChanged()) );
+  disconnect( this, SLOT(connectionDestroyed()) );
+  m_chatConnection = connection;
+  connect( m_chatConnection, SIGNAL(sigChange(ConnectionObject*)), this, SLOT(connectionChanged()) );
+  connect( m_chatConnection, SIGNAL(destroyed()), this, SLOT(connectionDestroyed()) );
+  connectionChanged();
+}
+
 //void ChatWindow::connected()
 //{
 //  if( ! m_sendBtn->isEnabled() ){
@@ -76,11 +89,13 @@ void ChatWindow::conNameChanged(QString name)
 
 void ChatWindow::closeEvent(QCloseEvent* event)
 {
-  if( m_chatConnection == 0 ){
-    event->ignore();
-    hide();
-    emit sigDestroy(this);
-  }
+//  if( m_chatConnection == 0 ){
+//    event->ignore();
+//    hide();
+//    emit sigDestroy(this);
+//  }
+  event->ignore();
+  hide();
 }
 
 void ChatWindow::sendMessage()
@@ -106,11 +121,8 @@ void ChatWindow::connectionChanged()
 void ChatWindow::connectionDestroyed()
 {
   m_chatConnection = 0;
-  if( isHidden() ){
-    emit sigDestroy(this);
-  } else {
-    writeMessage( StatusMess, "Conversation definitively closed. Open a new chat window after reconnecting");
-  }
+  m_sendBtn->setEnabled(false);
+  writeMessage( StatusMess, QString("Disconnected from %1").arg(m_conName) );
 }
 
 void ChatWindow::setupGui()

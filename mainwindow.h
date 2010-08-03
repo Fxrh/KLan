@@ -49,6 +49,7 @@ class MainWindow : public KXmlGuiWindow
     
   private slots:
     void gotNewConnection(ConnectionObject*);
+    void gotConnectionUpdated(ConnectionObject* object);
     void tryConnect();
     void startServer();
     void openChat( QModelIndex index );
@@ -80,7 +81,7 @@ class MainWindow : public KXmlGuiWindow
     QWidget* m_centralWid;
     
     bool isStarted;
-    QMap<ConnectionObject*, ChatWindow*>* m_chatMap;
+    QMap<QString, ChatWindow*>* m_chatMap;
     
 };
 

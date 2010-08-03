@@ -41,8 +41,9 @@ MainWindow::MainWindow(QWidget* parent)
 {
   setup();
   m_conManager = new ConManager(this);
-  m_chatMap = new QMap<ConnectionObject*, ChatWindow*>();
+  m_chatMap = new QMap<QString, ChatWindow*>();
   connect( m_conManager, SIGNAL(sigNewConnection(ConnectionObject*)), this, SLOT(gotNewConnection(ConnectionObject*)) );
+  connect( m_conManager, SIGNAL(sigConnectionUpdated(ConnectionObject*)), this, SLOT(gotConnectionUpdated(ConnectionObject*)) );
   connect( m_conManager, SIGNAL(sigChatMessage(QString,ConnectionObject*)), this, SLOT(gotChatMessage(QString,ConnectionObject*)) );
   connect( m_connectBtn, SIGNAL(clicked()), this, SLOT(tryConnect()) );
   connect( m_startServer, SIGNAL(clicked()), this, SLOT(startServer()) );
@@ -66,7 +67,20 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 void MainWindow::gotNewConnection(ConnectionObject* object)
 {
+  kDebug();
   m_model->addConnection(object);
+  ChatWindow* window = m_chatMap->value(QString(object->getIp()+":"+object->getClientPort()), 0);
+  if( window != 0 ){
+    window->updateConnection(object);
+  }
+}
+
+void MainWindow::gotConnectionUpdated(ConnectionObject *object)
+{
+  ChatWindow* window = m_chatMap->value(QString(object->getIp()+":"+object->getClientPort()), 0);
+  if( window != 0 ){
+    window->updateConnection(object);
+  }
 }
 
 void MainWindow::tryConnect()
@@ -102,13 +116,15 @@ void MainWindow::openChat( QModelIndex index )
 
 ChatWindow* MainWindow::openChat(ConnectionObject *object)
 {
-  ChatWindow* chatWindow = m_chatMap->value(object, 0);
+  QString key( object->getIp() + ":" + object->getClientPort() );
+  ChatWindow* chatWindow = m_chatMap->value(key, 0);
   if( chatWindow == 0 ){
     chatWindow = new ChatWindow("Me", object);
     connect( chatWindow, SIGNAL(sigDestroy(ChatWindow*)), this, SLOT(deleteChat(ChatWindow*)) );
     connect( chatWindow, SIGNAL(sigMessage(QString,ConnectionObject*)), m_conManager, SLOT(sendChatMessage(QString,ConnectionObject*)) );
-    m_chatMap->insert(object, chatWindow);
+    m_chatMap->insert(key, chatWindow);
   }
+  chatWindow->updateConnection(object);
   chatWindow->show();
   kDebug() << "Done";
   return chatWindow;
@@ -116,8 +132,8 @@ ChatWindow* MainWindow::openChat(ConnectionObject *object)
 
 void MainWindow::deleteChat(ChatWindow *window)
 {
-  ConnectionObject* key = m_chatMap->key(window, 0);
-  if( key != 0 ){
+  QString key = m_chatMap->key(window, "");
+  if( key != "" ){
     m_chatMap->remove(key);
   }
   delete window;

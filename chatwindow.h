@@ -25,6 +25,7 @@ class ChatWindow : public QWidget
     void newMessage(QString mess);
     void myNameChanged(QString name);
     void conNameChanged(QString name);
+    void updateConnection( ConnectionObject* connection );
 //    void connected();
 //    void disconnected();
     
