@@ -34,7 +34,6 @@ class Client : public QObject
     Client( QObject* parent=0 );
     ~Client();
     
-    void startBroadcast( quint16 port );
     void connectTo( const QString& hostIp, quint16 port );
     void start();
     void stop();
@@ -44,10 +43,6 @@ class Client : public QObject
     void sendServerInfo( quint16 serverPort, const QString& ip, quint16 port );
     void sendMyName( const QString& name );
     
-  public slots:
-    void startBroadcast();
-    void stopBroadcast();
-    
   signals:
     void newConnection( QString ip, quint16 port );
     void lostConnection( QString ip, quint16 port );
@@ -56,7 +51,6 @@ class Client : public QObject
     void timerEvent(QTimerEvent* event);
     
   private slots:
-    void gotBroadcastData();
     void gotConnected();
     void gotDisconnected();
     
@@ -64,11 +58,9 @@ class Client : public QObject
     ClientConnection* findConnection( const QString& hostIp, quint16 port );
     
     QList<ClientConnection*>* m_connectList;
-    QUdpSocket* m_broadcastSocket;
-    bool m_broadcastStarted;
-    quint16 m_broadcastPort;
-    int m_broadcastTimer;
+    //bool m_broadcastStarted;
     int m_removeInactiveTimer;
+    bool m_started;
 };
 
 #endif //CLIENT_H

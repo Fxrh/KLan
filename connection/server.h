@@ -34,7 +34,7 @@ class Server : public QObject
     Server( QObject* parent=0 );
     ~Server();
     
-    bool startServer( quint16 port );
+    void setPort( quint16 port );
     void removeConnection( const QString& ip, quint16 port );
     quint16 serverPort() const { return m_port; } 
     bool isStarted() const { return m_started; }

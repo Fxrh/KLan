@@ -44,14 +44,13 @@ Server::~Server()
   delete m_connectList;
 }
 
-bool Server::startServer(quint16 port)
+void Server::setPort(quint16 port)
 {
   if( m_started ){
     stopServer();
   }
   m_port = port;
   m_started = false;
-  return startServer();
 }
 
 void Server::removeConnection(const QString &ip, quint16 port)

@@ -20,9 +20,14 @@
 #include "conmanager.h"
 
 #include <QTimer>
+#include <QTimerEvent>
+#include <QUdpSocket>
+#include <QNetworkInterface>
+#include <QStringList>
 #include <KDebug>
 #include "server.h"
 #include "client.h"
+#include "def.h"
 
 ConManager::ConManager( QObject* parent )
   : QObject(parent)
@@ -30,6 +35,11 @@ ConManager::ConManager( QObject* parent )
   m_server = new Server(this);
   m_client = new Client(this);
   m_conList = new QList<ConnectionObject*>();
+  m_broadcastSocket = new QUdpSocket(this);
+  connect( m_broadcastSocket, SIGNAL(readyRead()), this, SLOT(gotBroadcastData()) );
+  m_broadcastPort = connection::Broadcast_Port;
+  m_broadcastTimer = 0;
+  m_isBroadcastStarted = false;
   
   //m_server->startServer(67352);
   //m_client->connectTo("127.0.0.1", 22786);
@@ -50,19 +60,32 @@ ConManager::~ConManager()
   kDebug() << "Deleted.";
 }
 
-bool ConManager::startServer(quint16 port)
+bool ConManager::start()
 {
-  bool started = m_server->startServer(port);
+  bool started = m_server->startServer();
   if( started ){
     m_client->start();
+    startBroadcast();
   }
   return started;
 }
 
-void ConManager::stopServer()
+void ConManager::stop()
 {
   m_server->stopServer();
   m_client->stop();
+  stopBroadcast();
+}
+
+void ConManager::setServerPort(quint16 port)
+{
+  m_server->setPort(port);
+}
+
+void ConManager::changeBroadcastPort(quint16 port)
+{
+  stopBroadcast();
+  m_broadcastPort = port;
 }
 
 void ConManager::tryConnect(const QString &ip, quint16 port)
@@ -88,6 +111,41 @@ void ConManager::sendChatMessage(QString message, ConnectionObject *connection)
     return;
   }
   m_client->sendChatMessage( message, connection->getIp(), connection->getClientPort() );
+}
+
+bool ConManager::startBroadcast()
+{
+  if( m_isBroadcastStarted ){
+    return true;
+  }
+  m_isBroadcastStarted = m_broadcastSocket->bind(m_broadcastPort);
+  if( !m_isBroadcastStarted ){
+    kDebug() << "Could not bind socket";
+    return false;
+  }
+  QString info("KLan "+QString::number(m_server->serverPort()));
+  m_broadcastSocket->writeDatagram(info.toUtf8(), QHostAddress::Broadcast, m_broadcastPort);
+  m_broadcastTimer = startTimer(60*1000);
+  return true;
+}
+
+void ConManager::stopBroadcast()
+{
+  if( !m_isBroadcastStarted ){
+    return;
+  }
+  m_broadcastSocket->close();
+  killTimer(m_broadcastTimer);
+  m_broadcastTimer = 0;
+  m_isBroadcastStarted = false;
+}
+
+void ConManager::timerEvent(QTimerEvent* event)
+{
+  if( event->timerId() == m_broadcastTimer && m_isBroadcastStarted ){
+    QString info("KLan "+QString::number(m_server->serverPort()));
+    m_broadcastSocket->writeDatagram(QByteArray(info.toUtf8()), QHostAddress::Broadcast, m_broadcastPort);
+  }
 }
 
 void ConManager::serverGotConnected(QString ip, quint16 serverPort)
@@ -135,6 +193,28 @@ void ConManager::clientGotDisconnected(QString ip, quint16 clientPort)
   }
   delete m_conList->at(id);
   m_conList->removeAt(id);
+}
+
+void ConManager::gotBroadcastData()
+{
+  while( m_broadcastSocket->hasPendingDatagrams() ){
+    QByteArray datagram;
+    datagram.resize(m_broadcastSocket->pendingDatagramSize());
+    QHostAddress sender;
+    quint16 senderPort;
+
+    m_broadcastSocket->readDatagram(datagram.data(), datagram.size(),
+                                    &sender, &senderPort);
+    kDebug() << QString(datagram) << sender << senderPort;
+    QStringList list = QString(datagram).split(' ');
+    if( list.count() == 2 && list[0] == "KLan" ){
+      bool ok;
+      quint16 clientPort = list[1].toUInt(&ok);
+      if( !QNetworkInterface::allAddresses().contains(sender) && ok ){
+        m_client->connectTo( sender.toString(), clientPort );
+      }
+    }
+  }
 }
 
 void ConManager::gotServerInfo(quint16 clientPort, QString ip, quint16 serverPort)

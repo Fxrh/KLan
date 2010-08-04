@@ -23,6 +23,7 @@
 
 class Server;
 class Client;
+class QUdpSocket;
 //struct Connection;
 
 class ConManager : public QObject
@@ -33,13 +34,20 @@ class ConManager : public QObject
     ConManager( QObject* parent = 0 );
     ~ConManager();
     
-    bool startServer( quint16 port );
-    void stopServer();
+    bool start();
+    void stop();
+    void setServerPort( quint16 port );
     void tryConnect( const QString& ip, quint16 port );
+    void changeBroadcastPort( quint16 port );
     void sendMyName( const QString& name );
     
   public slots:
     void sendChatMessage( QString message, ConnectionObject* connection );
+    bool startBroadcast();
+    void stopBroadcast();
+    
+protected:
+    void timerEvent(QTimerEvent* event);
     
   signals:
     void sigNewConnection( ConnectionObject* object );
@@ -50,6 +58,7 @@ class ConManager : public QObject
     void serverGotConnected( QString ip, quint16 serverPort );
     void clientGotConnected( QString ip, quint16 clientPort );
     void clientGotDisconnected( QString ip, quint16 clientPort );
+    void gotBroadcastData();
     void gotServerInfo( quint16 clientPort, QString ip, quint16 serverPort );
     void gotChatMessage( QString message, QString ip, quint16 serverPort );
     void gotName( QString name, QString ip, quint16 serverPort );
@@ -59,6 +68,10 @@ class ConManager : public QObject
     
     Server* m_server;
     Client* m_client;
+    QUdpSocket* m_broadcastSocket;
+    quint16 m_broadcastPort;
+    int m_broadcastTimer;
+    bool m_isBroadcastStarted;
     
     QList<ConnectionObject*>* m_conList;
 };

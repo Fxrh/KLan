@@ -95,13 +95,14 @@ void MainWindow::tryConnect()
 void MainWindow::startServer()
 {
   if( m_myPortEdit->isEnabled() ){
-    if( m_conManager->startServer( m_myPortEdit->text().toUInt() ) ){
+    m_conManager->setServerPort( m_myPortEdit->text().toUInt() );
+    if( m_conManager->start() ){
       m_myPortEdit->setEnabled(false);
       m_startServer->setText("Stop");
       m_connectBtn->setEnabled(true);
     }
   } else {
-    m_conManager->stopServer();
+    m_conManager->stop();
     m_startServer->setText("Start");
     m_myPortEdit->setEnabled(true);
     m_connectBtn->setEnabled(false);

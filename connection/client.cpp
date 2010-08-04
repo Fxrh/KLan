@@ -23,18 +23,16 @@
 
 #include <QUdpSocket>
 #include <QHostAddress>
+#include <QNetworkInterface>
 #include <QTimerEvent>
 #include <KDebug>
 
 Client::Client(QObject *parent)
   : QObject(parent)
 {
-  m_broadcastStarted = false;
-  m_broadcastSocket = new QUdpSocket(this);
   m_connectList = new QList<ClientConnection*>();
-  m_broadcastTimer = 0;
-  connect( m_broadcastSocket, SIGNAL(readyRead()), this, SLOT(gotBroadcastData()) );
   m_removeInactiveTimer = startTimer(60*1000);
+  m_started = false;
 }
 
 Client::~Client()
@@ -45,17 +43,17 @@ Client::~Client()
   delete m_connectList;
 }
 
-void Client::startBroadcast(quint16 port)
-{
-  if( m_broadcastStarted ){
-    stopBroadcast();
-  }
-  m_broadcastPort = port;
-  startBroadcast();
-}
-
 void Client::connectTo(const QString &hostIp, quint16 port)
 {
+  if( !m_started ){
+    return;
+  }
+  //Check if hostIp is your Ip
+//  if( QNetworkInterface::allAddresses().contains(QHostAddress(hostIp)) ){
+//    kDebug() << "No connecting to yourself allowed!";
+//    return;
+//  }
+  
   ClientConnection* connection = findConnection( hostIp, port );
   if( connection == 0 ){
     kDebug() << "Creating new client";
@@ -71,6 +69,7 @@ void Client::connectTo(const QString &hostIp, quint16 port)
 
 void Client::start()
 {
+  m_started = true;
   foreach( ClientConnection* connection, *m_connectList ){
     connection->startClient();
   }
@@ -78,6 +77,7 @@ void Client::start()
 
 void Client::stop()
 {
+  m_started = false;
   foreach( ClientConnection* connection, *m_connectList ){
     connection->stopClient();
   }
@@ -120,31 +120,8 @@ void Client::sendMyName(const QString &name)
   }
 }
 
-void Client::startBroadcast()
-{
-  if( m_broadcastStarted ){
-    return;
-  }
-  m_broadcastSocket->bind(m_broadcastPort);
-  m_broadcastSocket->writeDatagram(QByteArray("KLan"), QHostAddress::Broadcast, m_broadcastPort);
-  m_broadcastTimer = startTimer(5*60*1000);
-}
-
-void Client::stopBroadcast()
-{
-  if( !m_broadcastStarted ){
-    return;
-  }
-  m_broadcastSocket->close();
-  killTimer(m_broadcastTimer);
-  m_broadcastTimer = 0;
-}
-
 void Client::timerEvent(QTimerEvent *event)
 {
-  if( event->timerId() == m_broadcastTimer && m_broadcastStarted ){
-    m_broadcastSocket->writeDatagram(QByteArray("KLan"), QHostAddress::Broadcast, m_broadcastPort);
-  }
   if( event->timerId() == m_removeInactiveTimer ){
     kDebug() << "Connections: " << m_connectList->count();
     foreach( ClientConnection* con, *m_connectList ){
@@ -153,22 +130,6 @@ void Client::timerEvent(QTimerEvent *event)
         m_connectList->removeOne(con);
         delete con;
       }
-    }
-  }
-}
-
-void Client::gotBroadcastData()
-{
-  while( m_broadcastSocket->hasPendingDatagrams() ){
-    QByteArray datagram;
-    datagram.resize(m_broadcastSocket->pendingDatagramSize());
-    QHostAddress sender;
-    quint16 senderPort;
-
-    m_broadcastSocket->readDatagram(datagram.data(), datagram.size(),
-                                    &sender, &senderPort);
-    if( QString(datagram) == "KLan" ){
-      //connectTo( sender.toString(), senderPort );
     }
   }
 }
