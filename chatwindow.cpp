@@ -38,7 +38,12 @@ ChatWindow::ChatWindow( QString myName, ConnectionObject* connection, QWidget* p
       m_myName(myName),
       m_chatConnection(connection)      
 {
-  m_conName = QString(m_chatConnection->getIp() + ":" + QString::number(m_chatConnection->getClientPort()) );
+  if( m_chatConnection->getName() == "" ){
+    m_conName = QString(m_chatConnection->getIp() + ":" + QString::number(m_chatConnection->getClientPort()) );
+  } else {
+    m_conName = m_chatConnection->getName();
+  }
+  setWindowTitle(QString("Chat: %1 - KLan").arg(m_conName));
   setupGui();
   
   m_tableFormat = new QTextTableFormat();
@@ -70,11 +75,16 @@ void ChatWindow::myNameChanged(QString name)
 
 void ChatWindow::conNameChanged(QString name)
 {
-  if( m_conName == name ){
+  if( m_conName == name ||( name == "" 
+                            && m_conName == QString(m_chatConnection->getIp()+":"+QString::number(m_chatConnection->getClientPort())) ) ){
     return;
+  }
+  if( name == ""  ){
+    name = QString(m_chatConnection->getIp()+":"+QString::number(m_chatConnection->getClientPort()));
   }
   writeMessage(StatusMess, QString("%1 changed name to %2").arg(m_conName, name) );
   m_conName = name;
+  setWindowTitle(QString("Chat: %1 - KLan").arg(m_conName));
 }
 
 void ChatWindow::updateConnection(ConnectionObject *connection)
@@ -135,6 +145,7 @@ void ChatWindow::connectionChanged()
     m_sendBtn->setEnabled(false);
     writeMessage( StatusMess, QString("Disconnected from %1").arg(m_conName) );
   }
+  conNameChanged(m_chatConnection->getName());
 }
 
 void ChatWindow::connectionDestroyed()
@@ -151,8 +162,10 @@ void ChatWindow::setupGui()
   
   m_messageEdit = new QLineEdit();
   m_messageEdit->setMaxLength(500);
+  m_chatEdit->setFocusProxy(m_messageEdit);
   
   m_sendBtn = new KPushButton("Send");
+  m_sendBtn->setFocusProxy(m_messageEdit);
   //m_sendBtn->setEnabled(false);
   
   m_sendLayout = new QHBoxLayout();
@@ -165,6 +178,7 @@ void ChatWindow::setupGui()
   
   setLayout(m_layout);
   resize(600, 300);
+  m_messageEdit->setFocus();
   
   show();
 }

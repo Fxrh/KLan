@@ -66,6 +66,7 @@ QVariant ConModel::data(const QModelIndex &index, int role) const
   
   ConnectionObject* con = m_list->at(row);  //static_cast<ConnectionObject*>(index.internalPointer());
   QMap<QString,QVariant> map;
+  map["name"] = con->getName();
   map["ip"] = con->getIp();
   map["port"] = con->getClientPort();
   map["connected"] = con->isConnected();

@@ -57,6 +57,11 @@ quint16 ConnectionObject::getClientPort()
   return m_client_port;
 }
 
+const QString& ConnectionObject::getName()
+{
+  return m_name;
+}
+
 void ConnectionObject::changeServerPort(quint16 server_port)
 {
   if( m_server_port == server_port )
@@ -79,4 +84,13 @@ void ConnectionObject::changeConnection(bool connected)
     return;
   m_isConnected = connected;
   emit sigChange(const_cast<ConnectionObject*>(this));
+}
+
+void ConnectionObject::changeName(const QString& name)
+{
+  if( m_name == name ){
+    return;
+  }
+  m_name = name;
+  emit sigChange(this);
 }

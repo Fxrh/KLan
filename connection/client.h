@@ -42,6 +42,7 @@ class Client : public QObject
     void sendChatMessage(const QString& message, const QString& ip, quint16 port );
     void sendShortMessage( const QString& message, const QString& ip, quint16 port );
     void sendServerInfo( quint16 serverPort, const QString& ip, quint16 port );
+    void sendMyName( const QString& name );
     
   public slots:
     void startBroadcast();

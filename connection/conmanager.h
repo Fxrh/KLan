@@ -36,6 +36,7 @@ class ConManager : public QObject
     bool startServer( quint16 port );
     void stopServer();
     void tryConnect( const QString& ip, quint16 port );
+    void sendMyName( const QString& name );
     
   public slots:
     void sendChatMessage( QString message, ConnectionObject* connection );
@@ -51,6 +52,7 @@ class ConManager : public QObject
     void clientGotDisconnected( QString ip, quint16 clientPort );
     void gotServerInfo( quint16 clientPort, QString ip, quint16 serverPort );
     void gotChatMessage( QString message, QString ip, quint16 serverPort );
+    void gotName( QString name, QString ip, quint16 serverPort );
     
   private:
     int findConnection(const QString& ip, quint16 port, bool portIsClient=true );

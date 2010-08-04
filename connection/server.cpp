@@ -121,6 +121,11 @@ void Server::gotNewMessage()
         emit sigServer(port, connection->getIp(), connection->getPort() );
         continue;
       }
+      if( cmd == connection::Mess_Name ){
+        QString msg = message.right( message.length()-message.indexOf(' ')-1 );
+        kDebug() << "Name:" << msg;
+        emit sigName(msg, connection->getIp(), connection->getPort() );
+      }
       kDebug() << "unknown command: " << cmd;
     }
     connection->clearMessages();

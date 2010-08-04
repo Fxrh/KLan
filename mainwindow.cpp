@@ -34,6 +34,7 @@
 #include <QVBoxLayout>
 #include <QCloseEvent>
 #include <QApplication>
+#include <QInputDialog>
 #include <KDebug>
 
 MainWindow::MainWindow(QWidget* parent)
@@ -47,6 +48,7 @@ MainWindow::MainWindow(QWidget* parent)
   connect( m_conManager, SIGNAL(sigChatMessage(QString,ConnectionObject*)), this, SLOT(gotChatMessage(QString,ConnectionObject*)) );
   connect( m_connectBtn, SIGNAL(clicked()), this, SLOT(tryConnect()) );
   connect( m_startServer, SIGNAL(clicked()), this, SLOT(startServer()) );
+  connect( m_chNameBtn, SIGNAL(clicked()), this, SLOT(changeName()) );
   connect( m_view, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)) );
   connect( m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChat(QModelIndex)) );
   show();
@@ -68,6 +70,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 void MainWindow::gotNewConnection(ConnectionObject* object)
 {
   kDebug();
+  m_conManager->sendMyName(m_nameLb->text());
   m_model->addConnection(object);
   ChatWindow* window = m_chatMap->value(QString(object->getIp()+":"+object->getClientPort()), 0);
   if( window != 0 ){
@@ -77,6 +80,7 @@ void MainWindow::gotNewConnection(ConnectionObject* object)
 
 void MainWindow::gotConnectionUpdated(ConnectionObject *object)
 {
+  m_conManager->sendMyName(m_nameLb->text());
   ChatWindow* window = m_chatMap->value(QString(object->getIp()+":"+object->getClientPort()), 0);
   if( window != 0 ){
     window->updateConnection(object);
@@ -119,7 +123,8 @@ ChatWindow* MainWindow::openChat(ConnectionObject *object)
   QString key( object->getIp() + ":" + object->getClientPort() );
   ChatWindow* chatWindow = m_chatMap->value(key, 0);
   if( chatWindow == 0 ){
-    chatWindow = new ChatWindow("Me", object);
+    QString myName = ( m_nameLb->text() != "" ? m_nameLb->text() : "Me" );
+    chatWindow = new ChatWindow(myName, object);
     connect( chatWindow, SIGNAL(sigDestroy(ChatWindow*)), this, SLOT(deleteChat(ChatWindow*)) );
     connect( chatWindow, SIGNAL(sigMessage(QString,ConnectionObject*)), m_conManager, SLOT(sendChatMessage(QString,ConnectionObject*)) );
     m_chatMap->insert(key, chatWindow);
@@ -160,6 +165,22 @@ void MainWindow::showContextMenu(QPoint point)
   
 }
 
+void MainWindow::changeName()
+{
+  bool ok;
+  QString newName = QInputDialog::getText( this, "Change Name", "Your name:", QLineEdit::Normal, m_nameLb->text(), &ok );
+  if( ok && newName != m_nameLb->text() ){
+    m_conManager->sendMyName(newName);
+    m_nameLb->setText(newName);
+    if( newName == "" ){
+      newName = "Me";
+    }
+    foreach( ChatWindow* window, *m_chatMap ){
+      window->myNameChanged(newName);
+    }
+  }
+}
+
 void MainWindow::setup()
 {
   setupGUI();
@@ -172,6 +193,9 @@ void MainWindow::setup()
   m_view->setItemDelegate(m_delegate);
   m_trayIcon = new TrayIcon(this);
   
+  m_nameLb = new QLabel();
+  m_chNameBtn = new KPushButton("Change name");
+  
   //m_connectLb = new QLabel("Connect: ");
   m_ipEdit = new KLineEdit("127.0.0.1");
   m_colonLb = new QLabel(":");
@@ -183,6 +207,9 @@ void MainWindow::setup()
   m_myPortEdit = new KLineEdit("47639");
   m_startServer = new KPushButton("Start");
   
+  m_nameLayout = new QHBoxLayout();
+  m_nameLayout->addWidget(m_nameLb);
+  m_nameLayout->addWidget(m_chNameBtn);
   m_connectLayout = new QHBoxLayout();
   //m_connectLayout->addWidget(m_connectLb);
   m_connectLayout->addWidget(m_ipEdit);
@@ -194,6 +221,7 @@ void MainWindow::setup()
   m_serverLayout->addWidget(m_myPortEdit);
   m_serverLayout->addWidget(m_startServer);
   m_mainLayout = new QVBoxLayout();
+  m_mainLayout->addLayout(m_nameLayout);
   m_mainLayout->addWidget(m_view);
   m_mainLayout->addLayout(m_connectLayout);
   m_mainLayout->addLayout(m_serverLayout);

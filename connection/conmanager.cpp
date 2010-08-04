@@ -39,6 +39,7 @@ ConManager::ConManager( QObject* parent )
   connect( m_client, SIGNAL(lostConnection(QString,quint16)), this, SLOT(clientGotDisconnected(QString,quint16)) );
   connect( m_server, SIGNAL(sigServer(quint16,QString,quint16)), this, SLOT(gotServerInfo(quint16,QString,quint16)) );
   connect( m_server, SIGNAL(sigChatMessage(QString,QString,quint16)), this, SLOT(gotChatMessage(QString,QString,quint16)) );
+  connect( m_server, SIGNAL(sigName(QString,QString,quint16)), this, SLOT(gotName(QString,QString,quint16)) );
 }
 
 ConManager::~ConManager()
@@ -69,6 +70,11 @@ void ConManager::tryConnect(const QString &ip, quint16 port)
   if( m_server->isStarted() ){
     m_client->connectTo(ip, port);
   }
+}
+
+void ConManager::sendMyName(const QString& name)
+{
+  m_client->sendMyName(name);
 }
 
 void ConManager::sendChatMessage(QString message, ConnectionObject *connection)
@@ -108,6 +114,7 @@ void ConManager::clientGotConnected(QString ip, quint16 clientPort)
       m_conList->at(id)->changeConnection(true);
       kDebug() << "Connection online:" << ip << clientPort;
       m_client->sendServerInfo( m_server->serverPort(), ip, clientPort );
+      emit sigConnectionUpdated(m_conList->at(id));
     }
     return;
   }
@@ -160,6 +167,14 @@ void ConManager::gotChatMessage(QString message, QString ip, quint16 serverPort)
   int num = findConnection( ip, serverPort, false );
   if( num != -1 ){
     emit sigChatMessage( message, m_conList->at(num) );
+  }
+}
+
+void ConManager::gotName(QString name, QString ip, quint16 serverPort)
+{
+  int num = findConnection( ip, serverPort, false );
+  if( num != -1 ){
+    (*m_conList)[num]->changeName(name);
   }
 }
 

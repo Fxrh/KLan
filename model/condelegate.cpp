@@ -35,7 +35,11 @@ void ConDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, c
   originPoint.ry()+=5;
   painter->save();
   painter->setFont(boldFont);
-  QString address = index.data().toMap()["ip"].toString()+":"+QString::number(index.data().toMap()["port"].toUInt());
+  QMap<QString, QVariant> dataMap = index.data().toMap();
+  QString address = dataMap["ip"].toString()+":"+QString::number(dataMap["port"].toUInt());
+  if( dataMap["name"] != "" ){
+    address = QString("%1 (%2)").arg(dataMap["name"].toString(), address);
+  }
   painter->drawText( QRect(originPoint, option.rect.bottomRight() ), address);
   painter->restore();
 }
@@ -43,5 +47,5 @@ void ConDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, c
 QSize ConDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
   QFontMetrics metrics(boldFont);
-  return metrics.boundingRect("888.888.888.888:88888").size() + QSize(10,10);
+  return metrics.boundingRect("MiddleName (888.888.888.888:88888)").size() + QSize(10,10);
 }

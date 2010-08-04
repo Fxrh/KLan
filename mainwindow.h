@@ -57,6 +57,7 @@ class MainWindow : public KXmlGuiWindow
     void deleteChat( ChatWindow* window );
     void gotChatMessage( QString message, ConnectionObject* connection );
     void showContextMenu( QPoint point );
+    void changeName();
     
   private:
     void setup();
@@ -68,6 +69,8 @@ class MainWindow : public KXmlGuiWindow
     ConDelegate* m_delegate;
     TrayIcon* m_trayIcon;
     //QLabel * m_connectLb;
+    QLabel* m_nameLb;
+    KPushButton* m_chNameBtn;
     KLineEdit* m_ipEdit;
     QLabel* m_colonLb;
     KLineEdit* m_portEdit;
@@ -75,6 +78,7 @@ class MainWindow : public KXmlGuiWindow
     QLabel* m_myPortLb;
     KLineEdit* m_myPortEdit;
     KPushButton* m_startServer;
+    QHBoxLayout* m_nameLayout;
     QHBoxLayout* m_connectLayout;
     QHBoxLayout* m_serverLayout;
     QVBoxLayout* m_mainLayout;

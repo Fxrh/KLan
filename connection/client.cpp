@@ -113,6 +113,13 @@ void Client::sendServerInfo(quint16 serverPort, const QString &ip, quint16 port)
   connection->sendMessage( connection::Mess_Server + " " + QString::number(serverPort));
 }
 
+void Client::sendMyName(const QString &name)
+{
+  foreach( ClientConnection* connection, *m_connectList ){
+    connection->sendMessage(QString(connection::Mess_Name + " " + name));
+  }
+}
+
 void Client::startBroadcast()
 {
   if( m_broadcastStarted ){

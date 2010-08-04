@@ -34,9 +34,11 @@ class ConnectionObject : public QObject
     const QString& getIp();
     quint16 getServerPort();
     quint16 getClientPort();
+    const QString& getName();
     void changeServerPort( quint16 server_port );
     void changeClientPort( quint16 client_port );
     void changeConnection( bool connected );
+    void changeName( const QString& name );
     
   signals:
     void sigChange(ConnectionObject* object);
@@ -49,6 +51,7 @@ class ConnectionObject : public QObject
     // the port the client connects to
     quint16 m_client_port;
     bool m_isConnected;
+    QString m_name;
 };
 
 #endif
