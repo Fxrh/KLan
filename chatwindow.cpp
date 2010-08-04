@@ -26,9 +26,9 @@
 #include <QTextTableFormat>
 #include <QCloseEvent>
 #include <QScrollBar>
-#include <KPushButton>
-#include <KNotification>
-#include <kdebug.h>
+#include <QPushButton>
+#include <QDebug>
+//#include <KNotification>
 
 #include "chatwindow.h"
 #include "connection/connectionobject.h"
@@ -164,7 +164,7 @@ void ChatWindow::setupGui()
   m_messageEdit->setMaxLength(500);
   m_chatEdit->setFocusProxy(m_messageEdit);
   
-  m_sendBtn = new KPushButton("Send");
+  m_sendBtn = new QPushButton("Send");
   m_sendBtn->setFocusProxy(m_messageEdit);
   //m_sendBtn->setEnabled(false);
   
@@ -210,7 +210,7 @@ void ChatWindow::writeMessage(MessType type, QString mess )
       cursor.insertText(" *** " + mess + " *** ", charFormat);
       break;
     default :
-      kWarning() << "Wrong MessType";
+      qDebug() << "Wrong MessType";
       break;
   }
   QScrollBar *bar = m_chatEdit->verticalScrollBar();
@@ -219,9 +219,9 @@ void ChatWindow::writeMessage(MessType type, QString mess )
 
 void ChatWindow::messNotify()
 {
-  KNotification* notification = new KNotification("chat");
-  notification->sendEvent();
-  notification->deleteLater();
+//  KNotification* notification = new KNotification("chat");
+//  notification->sendEvent();
+//  notification->deleteLater();
 }
 
 //void ChatWindow::closeEvent(QCloseEvent* event )

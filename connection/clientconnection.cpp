@@ -24,7 +24,7 @@
 //#include <QStringList>
 #include <QHostAddress>
 #include <QTimerEvent>
-#include <KDebug>
+#include <QDebug>
 
 ClientConnection::ClientConnection( const QString& hostIp, quint16 port, QObject *parent)
   : QObject(parent)
@@ -68,7 +68,7 @@ bool ClientConnection::sendMessage(const QString &message)
   if( !m_connected || message.isEmpty() ){
     return false;
   }
-  kDebug() << "Send data to " << m_socket->peerAddress().toString() << ":"
+  qDebug() << "Send data to " << m_socket->peerAddress().toString() << ":"
       << m_socket->peerPort() << " : " << message;
   QDataStream out( m_socket );
   out.setVersion(QDataStream::Qt_4_6);
@@ -82,13 +82,13 @@ void ClientConnection::startClient()
     return;
   }
   if( m_port == 0 ){
-    kDebug() << "No port set.";
+    qDebug() << "No port set.";
     return;
   }
   m_socket->connectToHost(QHostAddress(m_hostIp), m_port);
   m_reconnectTimer = startTimer(15000);
   m_started = true;
-  kDebug() << "Started: " << m_hostIp << ":" << m_port;
+  qDebug() << "Client Started: " << m_hostIp << ":" << m_port;
 }
 
 void ClientConnection::stopClient()
@@ -102,7 +102,7 @@ void ClientConnection::stopClient()
     m_reconnectTimer = 0;
   }
   m_started = false;
-  kDebug() << "Stopped: " << m_hostIp << ":" << m_port;
+  qDebug() << "Client Stopped: " << m_hostIp << ":" << m_port;
 }
 
 void ClientConnection::reconnect()
@@ -127,7 +127,7 @@ void ClientConnection::timerEvent(QTimerEvent *event)
 
 void ClientConnection::gotConnected()
 {
-  kDebug() << "Connected to " << m_socket->peerAddress().toString() << ":" << m_port;
+  qDebug() << "Client: Connected to " << m_socket->peerAddress().toString() << ":" << m_port;
   m_connected = true;
   emit sigConnect();
   killTimer(m_inactiveTimer);
@@ -138,7 +138,7 @@ void ClientConnection::gotConnected()
 
 void ClientConnection::gotDisconnected()
 {
-  kDebug() << "Disconnected from " << m_hostIp << ":" << m_port;
+  qDebug() << "Client: Disconnected from " << m_hostIp << ":" << m_port;
   killTimer(m_pingTimer);
   m_connected = false;
   emit sigDisconnect();

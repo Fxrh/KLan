@@ -23,7 +23,7 @@
 #include <QHostAddress>
 #include <QTimerEvent>
 #include <QStringList>
-#include <KDebug>
+#include <QDebug>
 
 ServerConnection::ServerConnection(QTcpSocket *connection, QObject *parent)
   : QObject(parent),
@@ -36,7 +36,7 @@ ServerConnection::ServerConnection(QTcpSocket *connection, QObject *parent)
   m_active = true;
   m_activeTimer = startTimer(2*60000);
   
-  kDebug() << m_port;
+  qDebug() << "ServerConnection: " << m_port;
   connect( m_connection, SIGNAL(readyRead()), this, SLOT(gotNewData()) );
   // let's see if we already got some data
   gotNewData();
@@ -63,7 +63,7 @@ void ServerConnection::timerEvent(QTimerEvent *event)
 {
   if( event->timerId() == m_activeTimer ){
     if( !m_active ){
-      kDebug() << "Removing inactive server";
+      qDebug() << "Removing inactive server";
       killTimer(m_activeTimer);
       disconnect();
     } else {
@@ -74,7 +74,7 @@ void ServerConnection::timerEvent(QTimerEvent *event)
 
 void ServerConnection::gotDisconnected()
 {
-  kDebug() << "got disconnected";
+  qDebug() << "Server got disconnected";
   m_connected = false;
   m_connection->deleteLater();
   m_connection = 0;

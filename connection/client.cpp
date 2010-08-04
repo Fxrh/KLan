@@ -25,7 +25,7 @@
 #include <QHostAddress>
 #include <QNetworkInterface>
 #include <QTimerEvent>
-#include <KDebug>
+#include <QDebug>
 
 Client::Client(QObject *parent)
   : QObject(parent)
@@ -56,7 +56,7 @@ void Client::connectTo(const QString &hostIp, quint16 port)
   
   ClientConnection* connection = findConnection( hostIp, port );
   if( connection == 0 ){
-    kDebug() << "Creating new client";
+    qDebug() << "Creating new client";
     connection = new ClientConnection(hostIp, port);
     connection->startClient();
     m_connectList->push_back(connection);
@@ -87,7 +87,7 @@ void Client::sendChatMessage(const QString &message, const QString &ip, quint16 
 {
   ClientConnection* connection = findConnection( ip, port );
   if( !connection ){
-    kDebug() << "Host/Ip not found: " << ip << port;
+    qDebug() << "Host/Ip not found: " << ip << port;
     return;
   }
   connection->sendMessage( connection::Mess_Chat + " " + message);
@@ -97,7 +97,7 @@ void Client::sendShortMessage(const QString &message, const QString &ip, quint16
 {
   ClientConnection* connection = findConnection( ip, port );
   if( !connection ){
-    kDebug() << "Host/Ip not found: " << ip << port;
+    qDebug() << "Host/Ip not found: " << ip << port;
     return;
   }
   connection->sendMessage( connection::Mess_Short + " " + message );
@@ -107,7 +107,7 @@ void Client::sendServerInfo(quint16 serverPort, const QString &ip, quint16 port)
 {
   ClientConnection* connection = findConnection( ip, port );
   if( !connection ){
-    kDebug() << "Host/Ip not found: " << ip << port;
+    qDebug() << "Host/Ip not found: " << ip << port;
     return;
   }
   connection->sendMessage( connection::Mess_Server + " " + QString::number(serverPort));
@@ -123,10 +123,10 @@ void Client::sendMyName(const QString &name)
 void Client::timerEvent(QTimerEvent *event)
 {
   if( event->timerId() == m_removeInactiveTimer ){
-    kDebug() << "Connections: " << m_connectList->count();
+    qDebug() << "Connections: " << m_connectList->count();
     foreach( ClientConnection* con, *m_connectList ){
       if( con->isInactive() ){
-        kDebug() << "Removing inactive connection.";
+        qDebug() << "Removing inactive connection.";
         m_connectList->removeOne(con);
         delete con;
       }

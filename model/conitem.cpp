@@ -19,7 +19,7 @@
 
 #include "conitem.h"
 #include <QVariant>
-#include <KDebug>
+#include <QDebug>
 
 ConItem::ConItem(ConnectionObject* connectionObj, ConItem* parent )
   : m_connection(connectionObj),
@@ -53,7 +53,7 @@ bool ConItem::isRoot()
 ConnectionObject* ConItem::connection()
 {
   if( m_isRoot ){
-    kDebug() << "Root has no connection object...";
+    qDebug() << "Root has no connection object...";
     return 0;
   }
   return m_connection;
@@ -62,7 +62,7 @@ ConnectionObject* ConItem::connection()
 void ConItem::appendChild(ConItem* child)
 {
   if( !m_isRoot ){
-    kDebug() << "Only root can have child items";
+    qDebug() << "Only root can have child items";
     return;
   }
   m_childListPtr->append(child);
@@ -71,11 +71,11 @@ void ConItem::appendChild(ConItem* child)
 void ConItem::removeChild(int row)
 {
   if( !m_isRoot ){
-    kDebug() << "Only root has child items";
+    qDebug() << "Only root has child items";
     return;
   }
   if( row >= m_childListPtr->count() ){
-    kDebug() << "This row does not exist...";
+    qDebug() << "This row does not exist...";
     return;
   }
   m_childListPtr->removeAt(row);
@@ -84,11 +84,11 @@ void ConItem::removeChild(int row)
 ConItem* ConItem::child(int row)
 {
   if( !m_isRoot ){
-    kDebug() << "Only root has child items";
+    qDebug() << "Only root has child items";
     return 0;
   }
   if( row >= m_childListPtr->count() ){
-    kDebug() << "This row does not exist...";
+    qDebug() << "This row does not exist...";
     return 0;
   }
   return m_childListPtr->at(row);

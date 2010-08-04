@@ -20,7 +20,7 @@
 #include "trayicon.h"
 
 TrayIcon::TrayIcon(QObject* parent)
-  : KStatusNotifierItem(parent)
+  : QSystemTrayIcon(parent)
 {
-  setIconByName("klan");
+  //setIconByName("klan");
 }

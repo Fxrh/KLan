@@ -24,7 +24,7 @@
 #include <QUdpSocket>
 #include <QNetworkInterface>
 #include <QStringList>
-#include <KDebug>
+#include <QDebug>
 #include "server.h"
 #include "client.h"
 #include "def.h"
@@ -54,10 +54,10 @@ ConManager::ConManager( QObject* parent )
 
 ConManager::~ConManager()
 {
-  kDebug();
+  qDebug() << "ConManager::~ConManager";
   qDeleteAll(*m_conList);
   delete m_conList;
-  kDebug() << "Deleted.";
+  qDebug() << "ConManager::~ConManager: Deleted.";
 }
 
 bool ConManager::start()
@@ -103,11 +103,11 @@ void ConManager::sendMyName(const QString& name)
 void ConManager::sendChatMessage(QString message, ConnectionObject *connection)
 {
   if( !m_conList->contains(connection) ){
-    kDebug() << "This is no legal connection";
+    qDebug() << "This is no legal connection";
     return;
   }
   if( !connection->isConnected() ){
-    kDebug() << "Connection is offline";
+    qDebug() << "Connection is offline";
     return;
   }
   m_client->sendChatMessage( message, connection->getIp(), connection->getClientPort() );
@@ -120,7 +120,7 @@ bool ConManager::startBroadcast()
   }
   m_isBroadcastStarted = m_broadcastSocket->bind(m_broadcastPort);
   if( !m_isBroadcastStarted ){
-    kDebug() << "Could not bind socket";
+    qDebug() << "Broadcast: Could not bind socket";
     return false;
   }
   QString info("KLan "+QString::number(m_server->serverPort()));
@@ -150,7 +150,7 @@ void ConManager::timerEvent(QTimerEvent* event)
 
 void ConManager::serverGotConnected(QString ip, quint16 serverPort)
 {
-  kDebug() << ip << serverPort;
+  qDebug() << "Server got Connected:" << ip << serverPort;
   if( findConnection(ip, serverPort, false) != -1 ){
     return;
   }
@@ -170,7 +170,7 @@ void ConManager::clientGotConnected(QString ip, quint16 clientPort)
 //    }
     if( !m_conList->at(id)->isConnected() ){
       m_conList->at(id)->changeConnection(true);
-      kDebug() << "Connection online:" << ip << clientPort;
+      qDebug() << "Connection online:" << ip << clientPort;
       m_client->sendServerInfo( m_server->serverPort(), ip, clientPort );
       emit sigConnectionUpdated(m_conList->at(id));
     }
@@ -205,7 +205,7 @@ void ConManager::gotBroadcastData()
 
     m_broadcastSocket->readDatagram(datagram.data(), datagram.size(),
                                     &sender, &senderPort);
-    kDebug() << QString(datagram) << sender << senderPort;
+    qDebug() << QString(datagram) << sender << senderPort;
     QStringList list = QString(datagram).split(' ');
     if( list.count() == 2 && list[0] == "KLan" ){
       bool ok;
@@ -219,10 +219,10 @@ void ConManager::gotBroadcastData()
 
 void ConManager::gotServerInfo(quint16 clientPort, QString ip, quint16 serverPort)
 {
-  kDebug() << "clientPort:" << clientPort << "Ip:" << ip << "Port:" << serverPort;
+  qDebug() << "ServerInfo: clientPort:" << clientPort << "Ip:" << ip << "Port:" << serverPort;
   int newId = findConnection( ip, serverPort, false );
   if( newId == -1 ){
-    kDebug() << "You don't exist, go away!" << ip << serverPort;
+    qDebug() << "You don't exist, go away!" << ip << serverPort;
     return;
   }
   int oldId = findConnection( ip, clientPort );
@@ -231,13 +231,13 @@ void ConManager::gotServerInfo(quint16 clientPort, QString ip, quint16 serverPor
     delete m_conList->at(newId);
     if( m_conList->at(oldId)->getServerPort() == 0 ){
       (*m_conList)[oldId]->changeServerPort(serverPort);
-      kDebug() << "Added Server to client connection";
+      qDebug() << "Added Server to client connection";
     }
     m_conList->removeAt(newId);
   } else {
     (*m_conList)[newId]->changeClientPort(clientPort); // client_port is the port the client connects to!!
     m_client->connectTo(ip, clientPort );
-    kDebug() << "Added Client to server connection";
+    qDebug() << "Added Client to server connection";
     emit sigConnectionUpdated( m_conList->at(newId) );
   }
 }

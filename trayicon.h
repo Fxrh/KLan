@@ -20,9 +20,9 @@
 #ifndef TRAYICON_H
 #define TRAYICON_H
 
-#include <KStatusNotifierItem>
+#include <QSystemTrayIcon>
 
-class TrayIcon : public KStatusNotifierItem
+class TrayIcon : public QSystemTrayIcon
 {
   public:
     TrayIcon( QObject* parent=0 );

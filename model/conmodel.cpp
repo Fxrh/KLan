@@ -19,7 +19,7 @@
 
 #include "conmodel.h"
 #include "../connection/connectionobject.h"
-#include <KDebug>
+#include <QDebug>
 
 ConModel::ConModel(QObject* parent)
   : QAbstractListModel(parent)
@@ -29,10 +29,10 @@ ConModel::ConModel(QObject* parent)
 
 ConModel::~ConModel()
 {
-  kDebug();
+  qDebug() << "ConModel::~ConModel";
   // we don't need to delete the list of connections, ConManager does this
   delete m_list;
-  kDebug() << "Deleted.";
+  qDebug() << "ConModel::~ConModel: Deleted.";
 }
 
 void ConModel::addConnection(ConnectionObject *object)
@@ -99,7 +99,7 @@ void ConModel::infoChanged(ConnectionObject *object)
 
 void ConModel::gotRemoved(QObject *object)
 {
-  kDebug();
+  qDebug() << "ConModel::gotRemoved";
   int row = m_list->indexOf(static_cast<ConnectionObject*>(object));
   if( row >= 0 && row < m_list->count() ){
     beginRemoveRows(QModelIndex(), row, row );

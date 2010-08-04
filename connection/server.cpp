@@ -25,7 +25,7 @@
 #include <QHostAddress>
 #include <QList>
 #include <QStringList>
-#include <KDebug>
+#include <QDebug>
 
 Server::Server(QObject *parent)
   : QObject(parent)
@@ -60,7 +60,7 @@ void Server::removeConnection(const QString &ip, quint16 port)
     connection->disconnect();
     m_connectList->removeOne(connection);
     delete connection;
-    kDebug() << "removed " << ip << port;
+    qDebug() << "removed " << ip << port;
   }
 }
 
@@ -71,10 +71,10 @@ bool Server::startServer()
   }
   if( m_server->listen(QHostAddress::Any, m_port) ){
     m_started = true;
-    kDebug() << "Started.";
+    qDebug() << "Server: Started.";
     return true;
   } else {
-    kWarning() << "Could not start server!";
+    qDebug() << "Could not start server!";
     return false;
   }
 }
@@ -85,7 +85,7 @@ void Server::stopServer()
   m_started = false;
   qDeleteAll(*m_connectList);
   m_connectList->clear();
-  kDebug() << "Stopped.";
+  qDebug() << "Server: Stopped.";
 }
 
 void Server::gotNewMessage()
@@ -95,20 +95,20 @@ void Server::gotNewMessage()
     foreach( QString message, *(connection->messages()) ){
       QString cmd = message.left( message.indexOf(' ') );
       if( cmd == connection::Mess_Ping ){
-        kDebug() << "PING";
+        qDebug() << "PING";
         connection->setActive();
         continue;
       }
       if( cmd == connection::Mess_Chat ){
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
         emit sigChatMessage(msg, connection->getIp(), connection->getPort() );
-        kDebug() << "Chat:" << msg;
+        qDebug() << "Chat:" << msg;
         continue;
       }
       if( cmd == connection::Mess_Short ){
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
         emit sigShortMessage(msg);
-        kDebug() << "Short:" << msg;
+        qDebug() << "Short:" << msg;
         continue;
       }
       if( cmd == connection::Mess_Server ){
@@ -122,10 +122,10 @@ void Server::gotNewMessage()
       }
       if( cmd == connection::Mess_Name ){
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
-        kDebug() << "Name:" << msg;
+        qDebug() << "Name:" << msg;
         emit sigName(msg, connection->getIp(), connection->getPort() );
       }
-      kDebug() << "unknown command: " << cmd;
+      qDebug() << "unknown command: " << cmd;
     }
     connection->clearMessages();
   }
@@ -133,7 +133,7 @@ void Server::gotNewMessage()
 
 void Server::gotNewConnection()
 {
-  kDebug();
+//  kDebug();
   ServerConnection* newConnection = new ServerConnection( m_server->nextPendingConnection() );
   m_connectList->push_back(newConnection);
   emit sigNewConnection( newConnection->getIp(), newConnection->getPort() );

@@ -17,28 +17,28 @@
  *                                                                        *
  **************************************************************************/ 
 
-#include <KApplication>
-#include <KAboutData>
-#include <KCmdLineArgs>
-#include <KLocale>
+#include <QApplication>
+//#include <KAboutData>
+//#include <KCmdLineArgs>
+//#include <KLocale>
 
 #include "mainwindow.h"
 
 int main( int argc, char* argv[] )
 {
-  KAboutData aboutData( "klan",
-                        0,
-                        ki18n("KLan"),
-                        "0.1",
-                        ki18n("A lan communication tool for KDE"),
-                        KAboutData::License_GPL_V3,
-                        ki18n( "(c) 2010 Felix Rohrbach" ),
-                        ki18n(""), // Futher description
-                        "", // Website
-                        "fxrh@gmx.de" );
+//  KAboutData aboutData( "klan",
+//                        0,
+//                        ki18n("KLan"),
+//                        "0.1",
+//                        ki18n("A lan communication tool for KDE"),
+//                        KAboutData::License_GPL_V3,
+//                        ki18n( "(c) 2010 Felix Rohrbach" ),
+//                        ki18n(""), // Futher description
+//                        "", // Website
+//                        "fxrh@gmx.de" );
   
-  KCmdLineArgs::init( argc, argv, &aboutData );
-  KApplication app;
+//  KCmdLineArgs::init( argc, argv, &aboutData );
+  QApplication app(argc, argv);
   MainWindow window;
   return app.exec();
 }

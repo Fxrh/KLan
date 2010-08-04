@@ -20,12 +20,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <KXmlGuiWindow>
+#include <QMainWindow>
 #include <QModelIndex>
 
 class QLabel;
-class KLineEdit;
-class KPushButton;
+class QLineEdit;
+class QPushButton;
 class QListView;
 class QHBoxLayout;
 class QVBoxLayout;
@@ -37,7 +37,7 @@ class ConnectionObject;
 class TrayIcon;
 class ChatWindow;
 
-class MainWindow : public KXmlGuiWindow
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
   public:
@@ -70,14 +70,14 @@ class MainWindow : public KXmlGuiWindow
     TrayIcon* m_trayIcon;
     //QLabel * m_connectLb;
     QLabel* m_nameLb;
-    KPushButton* m_chNameBtn;
-    KLineEdit* m_ipEdit;
+    QPushButton* m_chNameBtn;
+    QLineEdit* m_ipEdit;
     QLabel* m_colonLb;
-    KLineEdit* m_portEdit;
-    KPushButton* m_connectBtn;
+    QLineEdit* m_portEdit;
+    QPushButton* m_connectBtn;
     QLabel* m_myPortLb;
-    KLineEdit* m_myPortEdit;
-    KPushButton* m_startServer;
+    QLineEdit* m_myPortEdit;
+    QPushButton* m_startServer;
     QHBoxLayout* m_nameLayout;
     QHBoxLayout* m_connectLayout;
     QHBoxLayout* m_serverLayout;

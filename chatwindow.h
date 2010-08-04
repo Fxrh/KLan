@@ -29,7 +29,7 @@ class QTextEdit;
 class QLineEdit;
 class QTextTableFormat;
 class QCloseEvent;
-class KPushButton;
+class QPushButton;
 class ConnectionObject;
 
 class ChatWindow : public QWidget
@@ -72,7 +72,7 @@ protected:
     QHBoxLayout* m_sendLayout;
     QTextEdit* m_chatEdit;
     QLineEdit* m_messageEdit;
-    KPushButton* m_sendBtn;
+    QPushButton* m_sendBtn;
     QTextTableFormat* m_tableFormat;
     
     ConnectionObject* m_chatConnection;

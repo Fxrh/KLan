@@ -28,17 +28,17 @@
 #include "model/conitem.h"
 #include <QListView>
 #include <QLabel>
-#include <KLineEdit>
-#include <KPushButton>
+#include <QLineEdit>
+#include <QPushButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QCloseEvent>
 #include <QApplication>
 #include <QInputDialog>
-#include <KDebug>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget* parent)
-  : KXmlGuiWindow(parent)
+  : QMainWindow(parent)
 {
   setup();
   m_conManager = new ConManager(this);
@@ -69,7 +69,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 void MainWindow::gotNewConnection(ConnectionObject* object)
 {
-  kDebug();
+//  kDebug();
   m_conManager->sendMyName(m_nameLb->text());
   m_model->addConnection(object);
   ChatWindow* window = m_chatMap->value(QString(object->getIp()+":"+object->getClientPort()), 0);
@@ -113,7 +113,7 @@ void MainWindow::openChat( QModelIndex index )
 {
   ConnectionObject* connection = m_model->getConnection(index);
   if( connection == 0 ){
-    kDebug() << "We got a null-pointer for the connection object";
+    qDebug() << "We got a null-pointer for the connection object";
     return;
   }
   openChat( connection );
@@ -132,7 +132,7 @@ ChatWindow* MainWindow::openChat(ConnectionObject *object)
   }
   chatWindow->updateConnection(object);
   chatWindow->show();
-  kDebug() << "Done";
+  qDebug() << "openChat: Done";
   return chatWindow;
 }
 
@@ -184,7 +184,7 @@ void MainWindow::changeName()
 
 void MainWindow::setup()
 {
-  setupGUI();
+  //setupGUI();
   m_view = new QListView(this);
   m_model = new ConModel(this);
   m_filter = new ConFilter(this);
@@ -195,18 +195,18 @@ void MainWindow::setup()
   m_trayIcon = new TrayIcon(this);
   
   m_nameLb = new QLabel();
-  m_chNameBtn = new KPushButton("Change name");
+  m_chNameBtn = new QPushButton("Change name");
   
   //m_connectLb = new QLabel("Connect: ");
-  m_ipEdit = new KLineEdit("127.0.0.1");
+  m_ipEdit = new QLineEdit("127.0.0.1");
   m_colonLb = new QLabel(":");
-  m_portEdit = new KLineEdit("47639");
-  m_connectBtn = new KPushButton("Connect");
+  m_portEdit = new QLineEdit("47639");
+  m_connectBtn = new QPushButton("Connect");
   m_connectBtn->setEnabled(false);
   
   m_myPortLb = new QLabel("My port:");
-  m_myPortEdit = new KLineEdit("47639");
-  m_startServer = new KPushButton("Start");
+  m_myPortEdit = new QLineEdit("47639");
+  m_startServer = new QPushButton("Start");
   
   m_nameLayout = new QHBoxLayout();
   m_nameLayout->addWidget(m_nameLb);
