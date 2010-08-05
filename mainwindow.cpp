@@ -37,10 +37,12 @@
 #include <QCloseEvent>
 #include <QApplication>
 #include <QInputDialog>
+#include <QStatusBar>
 #include <KDebug>
 #include <KStandardAction>
 #include <KActionCollection>
 #include <KApplication>
+#include <KStatusBar>
 
 MainWindow::MainWindow(QWidget* parent)
   : KXmlGuiWindow(parent)
@@ -111,8 +113,11 @@ void MainWindow::startServer()
       m_myPortEdit->setEnabled(false);
       m_startServer->setText("Stop");
       m_connectBtn->setEnabled(true);
+      m_statusLabel->setText("server started - broadcasting stopped");
       if( KLanSettings::useBroadcast() ){
-        m_conManager->startBroadcast();
+        if( m_conManager->startBroadcast() ){
+          m_statusLabel->setText("server started - broadcasting started");
+        }
       }
     }
   } else {
@@ -120,6 +125,7 @@ void MainWindow::startServer()
     m_startServer->setText("Start");
     m_myPortEdit->setEnabled(true);
     m_connectBtn->setEnabled(false);
+    m_statusLabel->setText("server stopped - broadcsting stopped");
   }
 }
 
@@ -202,7 +208,15 @@ void MainWindow::showConfigDialog()
   if( dialog.exec() == QDialog::Accepted ){
     m_conManager->changeBroadcastPort( KLanSettings::broadcastPort() );
     if( KLanSettings::useBroadcast() && isStarted ){
-      m_conManager->startBroadcast();
+      if( m_conManager->startBroadcast() ){
+        m_statusLabel->setText("server started - broadcasting started");
+        return;
+      }
+    }
+    if( isStarted ){
+      m_statusLabel->setText("server started - broadcasting stopped");
+    } else {
+      m_statusLabel->setText("server stopped - broadcasting stopped");
     }
   }  
 }
@@ -212,6 +226,10 @@ void MainWindow::setup()
   KStandardAction::quit(kapp, SLOT(quit()),
                           actionCollection());
   KStandardAction::preferences( this, SLOT(showConfigDialog()), actionCollection() );
+  setMenuBar(0);
+  setStatusBar(new QStatusBar());
+  m_statusLabel = new QLabel("server stopped - broadcasting stopped");
+  statusBar()->addWidget(m_statusLabel);
   setupGUI();
   
   

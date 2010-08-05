@@ -84,6 +84,7 @@ class MainWindow : public KXmlGuiWindow
     QHBoxLayout* m_serverLayout;
     QVBoxLayout* m_mainLayout;
     QWidget* m_centralWid;
+    QLabel* m_statusLabel;
     
     bool isStarted;
     QMap<QString, ChatWindow*>* m_chatMap;
