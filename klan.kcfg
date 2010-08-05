@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <kcfgfile />
+  <group name="Connection">
+    <entry name="MyPort" type="UInt">
+      <label>The port the server uses.</label>
+      <default>47639</default>
+    </entry>
+    <entry name="BroadcastPort" type="UInt">
+      <label>The port KLan uses to find other users in your network. All users have to use the same port!</label>
+      <default>32695</default>
+    </entry>
+    <entry name="UseBroadcast" type="Bool">
+      <label>Find other users via broadcast calls.</label>
+      <default>true</default>
+    </entry>
+    <entry name="AutoStart" type="Bool">
+      <label>Start the server automatically after startup.</label>
+      <default>false</default>
+    </entry>
+    <entry name="Name" type="String">
+      <label>Your name.</label>
+      <default></default>
+    </entry>
+  </group>
+</kcfg>

@@ -23,6 +23,12 @@ set( KLan_SRCS main.cpp
                connection/def.h
                )
 
+kde4_add_kcfg_files(KLan_SRCS klansettings.kcfgc)
+
 kde4_add_executable( klan ${KLan_SRCS} )
 target_link_libraries( klan ${KDE4_KDEUI_LIBS} )
+
+install(TARGETS klan DESTINATION ${BIN_INSTALL_DIR})
+install(FILES klanui.rc DESTINATION  ${DATA_INSTALL_DIR}/klan)
+install(FILES klan.kcfg DESTINATION ${KCFG_INSTALL_DIR})
 

@@ -1,0 +1,5 @@
+File=klan.kcfg
+ClassName=KLanSettings
+Singleton=true
+Mutators=true
+SetUserTexts=true

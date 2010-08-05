@@ -26,6 +26,7 @@
 #include "model/confilter.h"
 #include "model/condelegate.h"
 #include "model/conitem.h"
+#include "klansettings.h"
 #include <QListView>
 #include <QLabel>
 #include <KLineEdit>
@@ -36,6 +37,9 @@
 #include <QApplication>
 #include <QInputDialog>
 #include <KDebug>
+#include <KStandardAction>
+#include <KActionCollection>
+#include <KApplication>
 
 MainWindow::MainWindow(QWidget* parent)
   : KXmlGuiWindow(parent)
@@ -59,6 +63,9 @@ MainWindow::~MainWindow()
   qDeleteAll(*m_chatMap);
   m_chatMap->clear();
   delete m_chatMap;
+  KLanSettings::setMyPort(m_myPortEdit->text().toUInt());
+  KLanSettings::setName(m_nameLb->text());
+  KLanSettings::self()->writeConfig();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -184,7 +191,11 @@ void MainWindow::changeName()
 
 void MainWindow::setup()
 {
+  KStandardAction::quit(kapp, SLOT(quit()),
+                          actionCollection());
   setupGUI();
+  
+  
   m_view = new QListView(this);
   m_model = new ConModel(this);
   m_filter = new ConFilter(this);
@@ -194,7 +205,7 @@ void MainWindow::setup()
   m_view->setItemDelegate(m_delegate);
   m_trayIcon = new TrayIcon(this);
   
-  m_nameLb = new QLabel();
+  m_nameLb = new QLabel(KLanSettings::name());
   m_chNameBtn = new KPushButton("Change name");
   
   //m_connectLb = new QLabel("Connect: ");
@@ -205,7 +216,7 @@ void MainWindow::setup()
   m_connectBtn->setEnabled(false);
   
   m_myPortLb = new QLabel("My port:");
-  m_myPortEdit = new KLineEdit("47639");
+  m_myPortEdit = new KLineEdit(QString::number(KLanSettings::myPort()));
   m_startServer = new KPushButton("Start");
   
   m_nameLayout = new QHBoxLayout();
