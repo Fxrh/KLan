@@ -10,6 +10,7 @@ set( KLan_SRCS main.cpp
                mainwindow.cpp
                chatwindow.cpp
                trayicon.cpp
+               settingsdialog.cpp
                model/conmodel.cpp
                model/confilter.cpp
                model/condelegate.cpp

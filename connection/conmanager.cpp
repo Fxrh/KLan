@@ -65,7 +65,7 @@ bool ConManager::start()
   bool started = m_server->startServer();
   if( started ){
     m_client->start();
-    startBroadcast();
+    //startBroadcast();
   }
   return started;
 }
@@ -117,6 +117,9 @@ bool ConManager::startBroadcast()
 {
   if( m_isBroadcastStarted ){
     return true;
+  }
+  if( !m_server->isStarted() ){
+    return false;
   }
   m_isBroadcastStarted = m_broadcastSocket->bind(m_broadcastPort);
   if( !m_isBroadcastStarted ){

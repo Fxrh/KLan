@@ -58,6 +58,7 @@ class MainWindow : public KXmlGuiWindow
     void gotChatMessage( QString message, ConnectionObject* connection );
     void showContextMenu( QPoint point );
     void changeName();
+    void showConfigDialog();
     
   private:
     void setup();

@@ -27,6 +27,7 @@
 #include "model/condelegate.h"
 #include "model/conitem.h"
 #include "klansettings.h"
+#include "settingsdialog.h"
 #include <QListView>
 #include <QLabel>
 #include <KLineEdit>
@@ -56,6 +57,9 @@ MainWindow::MainWindow(QWidget* parent)
   connect( m_view, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)) );
   connect( m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChat(QModelIndex)) );
   show();
+  if( KLanSettings::autoStart() ){
+    startServer();
+  }
 }
 
 MainWindow::~MainWindow()
@@ -107,6 +111,9 @@ void MainWindow::startServer()
       m_myPortEdit->setEnabled(false);
       m_startServer->setText("Stop");
       m_connectBtn->setEnabled(true);
+      if( KLanSettings::useBroadcast() ){
+        m_conManager->startBroadcast();
+      }
     }
   } else {
     m_conManager->stop();
@@ -170,7 +177,7 @@ void MainWindow::gotChatMessage(QString message, ConnectionObject *connection)
 
 void MainWindow::showContextMenu(QPoint point)
 {
-  
+
 }
 
 void MainWindow::changeName()
@@ -189,10 +196,22 @@ void MainWindow::changeName()
   }
 }
 
+void MainWindow::showConfigDialog()
+{
+  SettingsDialog dialog;
+  if( dialog.exec() == QDialog::Accepted ){
+    m_conManager->changeBroadcastPort( KLanSettings::broadcastPort() );
+    if( KLanSettings::useBroadcast() && isStarted ){
+      m_conManager->startBroadcast();
+    }
+  }  
+}
+
 void MainWindow::setup()
 {
   KStandardAction::quit(kapp, SLOT(quit()),
                           actionCollection());
+  KStandardAction::preferences( this, SLOT(showConfigDialog()), actionCollection() );
   setupGUI();
   
   
