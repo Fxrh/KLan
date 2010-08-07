@@ -58,6 +58,7 @@ class MainWindow : public QMainWindow
     void gotChatMessage( QString message, ConnectionObject* connection );
     void showContextMenu( QPoint point );
     void changeName();
+    void showConfigDialog();
     
   private:
     void setup();
@@ -83,6 +84,14 @@ class MainWindow : public QMainWindow
     QHBoxLayout* m_serverLayout;
     QVBoxLayout* m_mainLayout;
     QWidget* m_centralWid;
+    QLabel* m_statusLabel;
+    QMenu* m_fileMenu;
+    QMenu* m_settingsMenu;
+    QMenu* m_helpMenu;
+    QAction* m_quitAct;
+    QAction* m_settingsAct;
+    QAction* m_aboutAct;
+    QAction* m_aboutQtAct;
     
     bool isStarted;
     QMap<QString, ChatWindow*>* m_chatMap;

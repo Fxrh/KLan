@@ -26,6 +26,8 @@
 #include "model/confilter.h"
 #include "model/condelegate.h"
 #include "model/conitem.h"
+#include "klansettings.h"
+#include "settingsdialog.h"
 #include <QListView>
 #include <QLabel>
 #include <QLineEdit>
@@ -36,6 +38,11 @@
 #include <QApplication>
 #include <QInputDialog>
 #include <QDebug>
+#include <QStatusBar>
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
+#include <QApplication>
 
 MainWindow::MainWindow(QWidget* parent)
   : QMainWindow(parent)
@@ -52,6 +59,9 @@ MainWindow::MainWindow(QWidget* parent)
   connect( m_view, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)) );
   connect( m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChat(QModelIndex)) );
   show();
+  if( KLanSettings::autoStart() ){
+    startServer();
+  }
 }
 
 MainWindow::~MainWindow()
@@ -59,6 +69,9 @@ MainWindow::~MainWindow()
   qDeleteAll(*m_chatMap);
   m_chatMap->clear();
   delete m_chatMap;
+  KLanSettings::setMyPort(m_myPortEdit->text().toUInt());
+  KLanSettings::setName(m_nameLb->text());
+  KLanSettings::self()->writeConfig();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -100,12 +113,19 @@ void MainWindow::startServer()
       m_myPortEdit->setEnabled(false);
       m_startServer->setText("Stop");
       m_connectBtn->setEnabled(true);
+      m_statusLabel->setText("server started - broadcasting stopped");
+      if( KLanSettings::useBroadcast() ){
+        if( m_conManager->startBroadcast() ){
+          m_statusLabel->setText("server started - broadcasting started");
+        }
+      }
     }
   } else {
     m_conManager->stop();
     m_startServer->setText("Start");
     m_myPortEdit->setEnabled(true);
     m_connectBtn->setEnabled(false);
+    m_statusLabel->setText("server stopped - broadcsting stopped");
   }
 }
 
@@ -163,7 +183,7 @@ void MainWindow::gotChatMessage(QString message, ConnectionObject *connection)
 
 void MainWindow::showContextMenu(QPoint point)
 {
-  
+
 }
 
 void MainWindow::changeName()
@@ -182,9 +202,47 @@ void MainWindow::changeName()
   }
 }
 
+void MainWindow::showConfigDialog()
+{
+  SettingsDialog dialog;
+  if( dialog.exec() == QDialog::Accepted ){
+    m_conManager->changeBroadcastPort( KLanSettings::broadcastPort() );
+    if( KLanSettings::useBroadcast() && isStarted ){
+      if( m_conManager->startBroadcast() ){
+        m_statusLabel->setText("server started - broadcasting started");
+        return;
+      }
+    }
+    if( isStarted ){
+      m_statusLabel->setText("server started - broadcasting stopped");
+    } else {
+      m_statusLabel->setText("server stopped - broadcasting stopped");
+    }
+  }  
+}
+
 void MainWindow::setup()
 {
-  //setupGUI();
+  m_quitAct = new QAction("Quit", this);
+  m_fileMenu = new QMenu("File");
+  m_fileMenu->addAction(m_quitAct);
+  m_settingsAct = new QAction("Configure QLan", this);
+  m_settingsMenu = new QMenu("Settings");
+  m_settingsMenu->addAction(m_settingsAct);
+  m_aboutAct = new QAction("About...", this);
+  m_aboutQtAct = new QAction("About Qt", this);
+  m_helpMenu = new QMenu("Help");
+  m_helpMenu->addAction(m_aboutAct);
+  m_helpMenu->addAction(m_aboutQtAct);
+  setMenuBar(new QMenuBar());
+  menuBar()->addMenu(m_fileMenu);
+  menuBar()->addMenu(m_settingsMenu);
+  menuBar()->addMenu(m_helpMenu);
+  setStatusBar(new QStatusBar());
+  m_statusLabel = new QLabel("server stopped - broadcasting stopped");
+  statusBar()->addWidget(m_statusLabel);
+  
+  
   m_view = new QListView(this);
   m_model = new ConModel(this);
   m_filter = new ConFilter(this);
@@ -194,7 +252,7 @@ void MainWindow::setup()
   m_view->setItemDelegate(m_delegate);
   m_trayIcon = new TrayIcon(this);
   
-  m_nameLb = new QLabel();
+  m_nameLb = new QLabel(KLanSettings::name());
   m_chNameBtn = new QPushButton("Change name");
   
   //m_connectLb = new QLabel("Connect: ");
@@ -205,7 +263,7 @@ void MainWindow::setup()
   m_connectBtn->setEnabled(false);
   
   m_myPortLb = new QLabel("My port:");
-  m_myPortEdit = new QLineEdit("47639");
+  m_myPortEdit = new QLineEdit(QString::number(KLanSettings::myPort()));
   m_startServer = new QPushButton("Start");
   
   m_nameLayout = new QHBoxLayout();
@@ -229,4 +287,8 @@ void MainWindow::setup()
   m_centralWid = new QWidget();
   m_centralWid->setLayout(m_mainLayout);
   setCentralWidget(m_centralWid);
+  
+  connect( m_quitAct, SIGNAL(triggered()), qApp, SLOT(quit()) );
+  connect( m_settingsAct, SIGNAL(triggered()), this, SLOT(showConfigDialog()) );
+  connect( m_aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()) );
 }

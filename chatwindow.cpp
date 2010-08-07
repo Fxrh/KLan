@@ -62,6 +62,7 @@ ChatWindow::~ChatWindow()
 void ChatWindow::newMessage(QString mess)
 {
   writeMessage(ConMess, mess);
+  activateWindow();
 }
 
 void ChatWindow::myNameChanged(QString name)

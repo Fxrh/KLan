@@ -13,6 +13,8 @@ set( QLan_SRCS main.cpp
                mainwindow.cpp
                chatwindow.cpp
                trayicon.cpp
+               klansettings.cpp
+               settingsdialog.cpp
                model/conmodel.cpp
                model/confilter.cpp
                model/condelegate.cpp
@@ -28,6 +30,7 @@ set( QLan_SRCS main.cpp
                
 set( QLan_MOC_HDRS mainwindow.h
                    chatwindow.h
+                   settingsdialog.h
                    model/conmodel.h
                    model/confilter.h
                    model/condelegate.h
@@ -43,4 +46,6 @@ QT4_WRAP_CPP( QLan_MOC_SRCS ${QLan_MOC_HDRS} )
 
 add_executable( qlan ${QLan_SRCS} ${QLan_MOC_SRCS} )
 target_link_libraries( qlan ${QT_LIBRARIES} )
+
+install(TARGETS qlan DESTINATION bin)
 
