@@ -43,6 +43,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QApplication>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget* parent)
   : QMainWindow(parent)
@@ -221,6 +222,14 @@ void MainWindow::showConfigDialog()
   }  
 }
 
+void MainWindow::showAbout()
+{
+  QMessageBox::about(this, "About QLan",
+                     "<h2>QLan version 0.1</h2>"
+                     "<p>Copyright &copy; 2009-2010 Felix Rohrbach <fxrh@gmx.de></p>"
+                     "<p>A LAN communication tool</p>");
+}
+
 void MainWindow::setup()
 {
   m_quitAct = new QAction("Quit", this);
@@ -290,5 +299,6 @@ void MainWindow::setup()
   
   connect( m_quitAct, SIGNAL(triggered()), qApp, SLOT(quit()) );
   connect( m_settingsAct, SIGNAL(triggered()), this, SLOT(showConfigDialog()) );
+  connect( m_aboutAct, SIGNAL(triggered()), this, SLOT(showAbout()) );
   connect( m_aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()) );
 }

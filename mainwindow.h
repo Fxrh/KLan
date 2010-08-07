@@ -59,6 +59,7 @@ class MainWindow : public QMainWindow
     void showContextMenu( QPoint point );
     void changeName();
     void showConfigDialog();
+    void showAbout();
     
   private:
     void setup();
