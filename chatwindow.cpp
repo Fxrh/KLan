@@ -62,7 +62,12 @@ ChatWindow::~ChatWindow()
 void ChatWindow::newMessage(QString mess)
 {
   writeMessage(ConMess, mess);
-  activateWindow();
+  if( isActiveWindow() ){
+    KNotification::event("chatmessage");
+  } else {
+    activateWindow();
+    KNotification::event("newchat", "Chat", QString("%1 says: \"%2\"").arg(m_conName).arg(mess) );
+  }
 }
 
 void ChatWindow::myNameChanged(QString name)

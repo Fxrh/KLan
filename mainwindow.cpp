@@ -43,6 +43,7 @@
 #include <KActionCollection>
 #include <KApplication>
 #include <KStatusBar>
+#include <KNotification>
 
 MainWindow::MainWindow(QWidget* parent)
   : KXmlGuiWindow(parent)
@@ -85,6 +86,7 @@ void MainWindow::gotNewConnection(ConnectionObject* object)
   kDebug();
   m_conManager->sendMyName(m_nameLb->text());
   m_model->addConnection(object);
+  m_trayIcon->newConnection(object);
   ChatWindow* window = m_chatMap->value(QString(object->getIp()+":"+object->getClientPort()), 0);
   if( window != 0 ){
     window->updateConnection(object);
@@ -126,6 +128,7 @@ void MainWindow::startServer()
     m_myPortEdit->setEnabled(true);
     m_connectBtn->setEnabled(false);
     m_statusLabel->setText("server stopped - broadcsting stopped");
+    KNotification::event("disconnected", "Disconnected", "Server was stopped");
   }
 }
 

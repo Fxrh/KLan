@@ -1,0 +1,53 @@
+[Global]
+IconName=klan
+Comment=KLan
+Name=Klan
+
+[Context/group]
+Name=Lan Communication Tool
+Context=Lan Communication Tool
+
+[Context/folder]
+name=network
+
+[Event/connected]
+Name=Connected
+Comment=Connected to someone
+Contexts=folder,group
+Sound=Kopete_User_is_Online.ogg
+Action=Popup|Sound
+
+[Event/disconnected]
+Name=Disconnected
+Comment=You got disconnected from someone
+Contexts=folder,group
+Sound=KDE-Sys-File-Open-Foes.ogg
+Action=Sound|Popup
+
+[Event/shortmessage]
+ Name=Short Message
+ Comment=You got a short message
+Contexts=folder,group
+ Sound=KDE-Im-Sms.ogg
+ Action=Sound|Popup
+
+[Event/chatmessage]
+ Name=Chat Message
+ Comment=You got a new chat message
+Contexts=folder,group
+ Sound=Kopete_Received.ogg
+ Action=Sound
+ 
+[Event/newchat]
+ Name=New Chat
+ Comment=Someone started a chat with you
+Contexts=folder,group
+ Sound=Kopete_Received.ogg
+ Action=Popup|Sound
+ 
+
+
+
+
+
+

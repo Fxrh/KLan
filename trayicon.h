@@ -22,10 +22,25 @@
 
 #include <KStatusNotifierItem>
 
+class ConnectionObject;
+
 class TrayIcon : public KStatusNotifierItem
 {
+    Q_OBJECT
   public:
+    ~TrayIcon();
     TrayIcon( QObject* parent=0 );
+    
+  public slots:
+    void newConnection( ConnectionObject* );
+    
+  private slots:
+    void connectionStatusChanged(ConnectionObject*);
+    void connectionDestroyed(QObject*);
+    
+  private:
+    void sysnotify( const QString& name, const QString& title, const QString& msg );
+    QMap<ConnectionObject*, bool>* m_conMap;
 };
 
 #endif
