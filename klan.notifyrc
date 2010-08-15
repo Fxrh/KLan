@@ -22,7 +22,7 @@ Name=Disconnected
 Comment=You got disconnected from someone
 Contexts=folder,group
 Sound=KDE-Sys-File-Open-Foes.ogg
-Action=Sound|Popup
+Action=Sound
 
 [Event/shortmessage]
  Name=Short Message

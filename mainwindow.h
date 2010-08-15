@@ -29,6 +29,7 @@ class KPushButton;
 class QListView;
 class QHBoxLayout;
 class QVBoxLayout;
+class QSignalMapper;
 class ConManager;
 class ConModel;
 class ConFilter;
@@ -56,9 +57,11 @@ class MainWindow : public KXmlGuiWindow
     ChatWindow* openChat( ConnectionObject* object );
     void deleteChat( ChatWindow* window );
     void gotChatMessage( QString message, ConnectionObject* connection );
+    void gotShortMessage( QString message, ConnectionObject* connection );
     void showContextMenu( QPoint point );
     void changeName();
     void showConfigDialog();
+    void sendShortMessage(int id);
     
   private:
     void setup();
@@ -88,6 +91,8 @@ class MainWindow : public KXmlGuiWindow
     
     bool isStarted;
     QMap<QString, ChatWindow*>* m_chatMap;
+    QMenu* m_contextMenu;
+    QSignalMapper* m_signalMapper;
     
 };
 

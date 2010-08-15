@@ -107,7 +107,7 @@ void Server::gotNewMessage()
       }
       if( cmd == connection::Mess_Short ){
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
-        emit sigShortMessage(msg);
+        emit sigShortMessage(msg, connection->getIp(), connection->getPort() );
         kDebug() << "Short:" << msg;
         continue;
       }

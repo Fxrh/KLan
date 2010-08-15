@@ -69,6 +69,7 @@ void TrayIcon::connectionDestroyed(QObject* object)
   if( m_conMap->value(cobject) ){
 //    QString name = (cobject->getName() == ""?QString("%1:%2").arg(cobject->getIp(), cobject->getClientPort()) : cobject->getName() );
 //    sysnotify("disconnected", "Disconnected", QString("Disconnected") );
+    sysnotify("disconnected", "", "");
   }
   m_conMap->remove( cobject );
 }

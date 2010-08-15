@@ -38,6 +38,8 @@
 #include <QApplication>
 #include <QInputDialog>
 #include <QStatusBar>
+#include <QSignalMapper>
+#include <QMenu>
 #include <KDebug>
 #include <KStandardAction>
 #include <KActionCollection>
@@ -51,14 +53,18 @@ MainWindow::MainWindow(QWidget* parent)
   setup();
   m_conManager = new ConManager(this);
   m_chatMap = new QMap<QString, ChatWindow*>();
+  m_contextMenu = 0; // will be created if needed
+  m_signalMapper = new QSignalMapper(this);
   connect( m_conManager, SIGNAL(sigNewConnection(ConnectionObject*)), this, SLOT(gotNewConnection(ConnectionObject*)) );
   connect( m_conManager, SIGNAL(sigConnectionUpdated(ConnectionObject*)), this, SLOT(gotConnectionUpdated(ConnectionObject*)) );
   connect( m_conManager, SIGNAL(sigChatMessage(QString,ConnectionObject*)), this, SLOT(gotChatMessage(QString,ConnectionObject*)) );
+  connect( m_conManager, SIGNAL(sigShortMessage(QString,ConnectionObject*)), this, SLOT(gotShortMessage(QString,ConnectionObject*)) );
   connect( m_connectBtn, SIGNAL(clicked()), this, SLOT(tryConnect()) );
   connect( m_startServer, SIGNAL(clicked()), this, SLOT(startServer()) );
   connect( m_chNameBtn, SIGNAL(clicked()), this, SLOT(changeName()) );
   connect( m_view, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)) );
   connect( m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openChat(QModelIndex)) );
+  connect( m_signalMapper, SIGNAL(mapped(int)), this, SLOT(sendShortMessage(int)) );
   show();
   if( KLanSettings::autoStart() ){
     startServer();
@@ -134,6 +140,7 @@ void MainWindow::startServer()
 
 void MainWindow::openChat( QModelIndex index )
 {
+  index = m_filter->mapToSource(index);
   ConnectionObject* connection = m_model->getConnection(index);
   if( connection == 0 ){
     kDebug() << "We got a null-pointer for the connection object";
@@ -184,9 +191,30 @@ void MainWindow::gotChatMessage(QString message, ConnectionObject *connection)
   window->newMessage(message);
 }
 
+void MainWindow::gotShortMessage(QString message, ConnectionObject* connection)
+{
+  QString name = ( connection->getName() == "" ? connection->getIp() : connection->getName() );
+  KNotification::event("shortmessage", "Short Message", QString("%1 says: %2").arg(name).arg(message), QPixmap(), this, KNotification::Persistent );
+}
+
 void MainWindow::showContextMenu(QPoint point)
 {
-
+  kDebug();
+  if( !m_view->indexAt(point).isValid() ){
+    return;
+  }
+  if( m_contextMenu == 0 ){
+    m_contextMenu = new QMenu();
+    QStringList list = KLanSettings::shortMsgList();
+    int len = list.count();
+    for( int i=0; i<len; ++i ){
+      QAction* action = new QAction(list[i], m_contextMenu);
+      m_contextMenu->addAction(action);
+      connect( action, SIGNAL(triggered()), m_signalMapper, SLOT(map()) );
+      m_signalMapper->setMapping(action, i);
+    }
+  }
+  m_contextMenu->exec(m_view->mapToGlobal(point));
 }
 
 void MainWindow::changeName()
@@ -209,6 +237,10 @@ void MainWindow::showConfigDialog()
 {
   SettingsDialog dialog;
   if( dialog.exec() == QDialog::Accepted ){
+    if( dialog.listChanged() ){
+      delete m_contextMenu;
+      m_contextMenu = 0;
+    }
     m_conManager->changeBroadcastPort( KLanSettings::broadcastPort() );
     if( KLanSettings::useBroadcast() && isStarted ){
       if( m_conManager->startBroadcast() ){
@@ -224,6 +256,15 @@ void MainWindow::showConfigDialog()
   }  
 }
 
+void MainWindow::sendShortMessage(int id)
+{
+  ConnectionObject* object = m_model->getConnection( m_filter->mapToSource(m_view->currentIndex()) );
+  if( object == 0 ){
+    kDebug() << "Error: we got a null pointer object";
+  }
+  m_conManager->sendShortMessage( KLanSettings::shortMsgList()[id], object );
+}
+
 void MainWindow::setup()
 {
   KStandardAction::quit(kapp, SLOT(quit()),
@@ -237,6 +278,7 @@ void MainWindow::setup()
   
   
   m_view = new QListView(this);
+  m_view->setContextMenuPolicy( Qt::CustomContextMenu );
   m_model = new ConModel(this);
   m_filter = new ConFilter(this);
   m_delegate = new ConDelegate(this);

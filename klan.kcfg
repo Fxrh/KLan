@@ -25,5 +25,9 @@
       <label>Your name.</label>
       <default></default>
     </entry>
+    <entry name="ShortMsgList" type="StringList">
+      <label>A list of short messages</label>
+      <default>Could you come around?,Yes,No,I've finished</default>
+    </entry>
   </group>
 </kcfg>
