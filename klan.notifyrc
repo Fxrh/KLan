@@ -14,7 +14,7 @@ name=network
 Name=Connected
 Comment=Connected to someone
 Contexts=folder,group
-Sound=Kopete_User_is_Online.ogg
+Sound=klan_connect.ogg
 Action=Popup|Sound
 
 [Event/disconnected]
@@ -35,14 +35,14 @@ Contexts=folder,group
  Name=Chat Message
  Comment=You got a new chat message
 Contexts=folder,group
- Sound=Kopete_Received.ogg
+ Sound=klan_chat.ogg
  Action=Sound
  
 [Event/newchat]
  Name=New Chat
  Comment=Someone started a chat with you
 Contexts=folder,group
- Sound=Kopete_Received.ogg
+ Sound=klan_chat.ogg
  Action=Popup|Sound
  
 
