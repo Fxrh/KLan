@@ -66,5 +66,6 @@ void Sound::mediaStateChanged(Phonon::State newState, Phonon::State)
       qDebug() << "Sound: error: " << soundMedia->errorString();
       break;
     default:
+      break;
   }
 }
