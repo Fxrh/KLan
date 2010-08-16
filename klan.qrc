@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>data/sounds/klan_shortmsg.ogg</file>
+    <file>data/sounds/klan_chat.ogg</file>
+    <file>data/sounds/klan_connect.ogg</file>
+    <file>data/sounds/klan_disconnect.ogg</file>
+</qresource>
+</RCC>

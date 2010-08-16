@@ -30,6 +30,9 @@ KLanSettings::KLanSettings(  )
   mUseBroadcast = settings->value("UseBroadcast", true).toBool();
   mAutoStart = settings->value("AutoStart", false).toBool();
   mName = settings->value("Name", "").toString();
+  QStringList defaultList;
+  defaultList << "Could you come around?" << "Yes" << "No" << "I'm finished";
+  mShortMsgList = settings->value("ShortMsgList", defaultList ).toStringList();
   settings->endGroup();
 }
 
@@ -55,6 +58,7 @@ void KLanSettings::writeConfig()
   settings->setValue("UseBroadcast", mUseBroadcast);
   settings->setValue("AutoStart", mAutoStart);
   settings->setValue("Name", mName);
+  settings->setValue("ShortMsgList", mShortMsgList);
   settings->endGroup();
   settings->sync();
 }

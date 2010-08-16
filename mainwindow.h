@@ -29,6 +29,7 @@ class QPushButton;
 class QListView;
 class QHBoxLayout;
 class QVBoxLayout;
+class QSignalMapper;
 class ConManager;
 class ConModel;
 class ConFilter;
@@ -60,6 +61,7 @@ class MainWindow : public QMainWindow
     void changeName();
     void showConfigDialog();
     void showAbout();
+    void sendShortMessage(int id);
     
   private:
     void setup();
@@ -96,6 +98,8 @@ class MainWindow : public QMainWindow
     
     bool isStarted;
     QMap<QString, ChatWindow*>* m_chatMap;
+    QMenu* m_contextMenu;
+    QSignalMapper* m_signalMapper;
     
 };
 

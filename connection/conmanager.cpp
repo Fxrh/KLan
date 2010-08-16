@@ -49,6 +49,7 @@ ConManager::ConManager( QObject* parent )
   connect( m_client, SIGNAL(lostConnection(QString,quint16)), this, SLOT(clientGotDisconnected(QString,quint16)) );
   connect( m_server, SIGNAL(sigServer(quint16,QString,quint16)), this, SLOT(gotServerInfo(quint16,QString,quint16)) );
   connect( m_server, SIGNAL(sigChatMessage(QString,QString,quint16)), this, SLOT(gotChatMessage(QString,QString,quint16)) );
+  connect( m_server, SIGNAL(sigShortMessage(QString,QString,quint16)), this, SLOT(gotShortMessage(QString,QString,quint16)) );
   connect( m_server, SIGNAL(sigName(QString,QString,quint16)), this, SLOT(gotName(QString,QString,quint16)) );
 }
 
@@ -111,6 +112,19 @@ void ConManager::sendChatMessage(QString message, ConnectionObject *connection)
     return;
   }
   m_client->sendChatMessage( message, connection->getIp(), connection->getClientPort() );
+}
+
+void ConManager::sendShortMessage(QString message, ConnectionObject *connection)
+{
+  if( !m_conList->contains(connection) ){
+    qDebug() << "sendShortMessage: This is no legal connection";
+    return;
+  }
+  if( !connection->isConnected() ){
+    qDebug() << "sendShortMessage: Connection is offline";
+    return;
+  }
+  m_client->sendShortMessage( message, connection->getIp(), connection->getClientPort() );
 }
 
 bool ConManager::startBroadcast()
@@ -250,6 +264,14 @@ void ConManager::gotChatMessage(QString message, QString ip, quint16 serverPort)
   int num = findConnection( ip, serverPort, false );
   if( num != -1 ){
     emit sigChatMessage( message, m_conList->at(num) );
+  }
+}
+
+void ConManager::gotShortMessage(QString message, QString ip, quint16 serverPort)
+{
+  int num = findConnection( ip, serverPort, false );
+  if( num != -1 ){
+    emit sigShortMessage( message, m_conList->at(num) );
   }
 }
 

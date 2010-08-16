@@ -22,10 +22,30 @@
 
 #include <QSystemTrayIcon>
 
+class ConnectionObject;
+class Sound;
+
 class TrayIcon : public QSystemTrayIcon
 {
+    Q_OBJECT
   public:
+    ~TrayIcon();
     TrayIcon( QObject* parent=0 );
+    
+  public slots:
+    void newConnection( ConnectionObject* );
+    void shortMessage( QString message, ConnectionObject* object );
+    void chatMessage( QString message, ConnectionObject* object );
+    void chatSound();
+    
+  private slots:
+    void connectionStatusChanged(ConnectionObject*);
+    void connectionDestroyed(QObject*);
+    
+  private:
+    void sysnotify( const QString& name, const QString& title, const QString& msg );
+    QMap<ConnectionObject*, bool>* m_conMap;
+    Sound* m_sound;
 };
 
 #endif

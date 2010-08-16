@@ -39,6 +39,7 @@ int main( int argc, char* argv[] )
   
 //  KCmdLineArgs::init( argc, argv, &aboutData );
   QApplication app(argc, argv);
+  app.setApplicationName("QLan");
   MainWindow window;
   return app.exec();
 }

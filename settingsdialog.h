@@ -25,6 +25,8 @@
 class QCheckBox;
 class QLabel;
 class QSpinBox;
+class QListView;
+class QStringListModel;
 class QPushButton;
 class QHBoxLayout;
 class QVBoxLayout;
@@ -34,25 +36,39 @@ class SettingsDialog : public QDialog
     Q_OBJECT
   public:
     SettingsDialog( QWidget* parent=0 );
+    bool listChanged() const { return m_listChanged; }
     
   public slots:
     void accept();
     void reject();
+    
+  private slots:
+    void listAdd();
+    void listRm();
     
   private:
     QCheckBox* m_autoStart;
     QCheckBox* m_useBroadcast;
     QLabel* m_broadcastPort;
     QSpinBox* m_broadcastPortEdit;
+    QLabel* m_listLb;
+    QListView* m_listView;
+    QStringListModel* m_listModel;
+    QPushButton* m_addBtn;
+    QPushButton* m_rmBtn;
     
     QPushButton* m_acceptBtn;
     QPushButton* m_rejectBtn;
     
     QHBoxLayout* m_broadcastLayout;
+    QHBoxLayout* m_listBtnLayout;
     QHBoxLayout* m_buttonLayout;
     QVBoxLayout* m_vSettingsLayout;
     QHBoxLayout* m_hSettingsLayout;
     QVBoxLayout* m_mainLayout;
+    
+    bool m_listChanged;
+    QStringList* m_list;
 };
 
 #endif //SETTINGSDIALOG_H

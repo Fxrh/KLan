@@ -21,6 +21,7 @@
 #define KLANSETTINGS_H
 
 #include <QSettings>
+#include <QStringList>
 
 class KLanSettings
 {
@@ -119,6 +120,18 @@ class KLanSettings
     {
       return self()->mName;
     }
+    
+    static
+    void setShortMsgList( const QStringList& v )
+    {
+      self()->mShortMsgList = v;
+    }
+    
+    static
+    QStringList shortMsgList()
+    {
+      return self()->mShortMsgList;
+    }
 
   protected:
     KLanSettings();
@@ -133,6 +146,7 @@ class KLanSettings
     bool mUseBroadcast;
     bool mAutoStart;
     QString mName;
+    QStringList mShortMsgList;
     
     QSettings* settings;
 };

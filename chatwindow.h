@@ -51,6 +51,8 @@ class ChatWindow : public QWidget
   signals:
     void sigMessage(QString mess, ConnectionObject* connection);
     void sigDestroy( ChatWindow* window );
+    void sigChatNotification( QString message, ConnectionObject* connection );
+    void sigChatSound();
     
 protected:
     void closeEvent(QCloseEvent* event);

@@ -62,7 +62,12 @@ ChatWindow::~ChatWindow()
 void ChatWindow::newMessage(QString mess)
 {
   writeMessage(ConMess, mess);
-  activateWindow();
+  if( isActiveWindow() ){
+    emit sigChatSound();
+  } else {
+    activateWindow();
+    emit sigChatNotification( mess, m_chatConnection );
+  }
 }
 
 void ChatWindow::myNameChanged(QString name)

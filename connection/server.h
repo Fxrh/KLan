@@ -46,7 +46,7 @@ class Server : public QObject
   signals:
     void sigNewConnection( QString hostIp, quint16 port );
     void sigChatMessage( QString message, QString hostIp, quint16 serverPort );
-    void sigShortMessage( QString message );
+    void sigShortMessage( QString message, QString hostIp, quint16 serverPort );
     void sigServer( quint16 clientPort, QString ip, quint16 serverPort );
     void sigName( QString name, QString hostIp, quint16 serverPort );
     
