@@ -124,6 +124,7 @@ void Server::gotNewMessage()
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
         kDebug() << "Name:" << msg;
         emit sigName(msg, connection->getIp(), connection->getPort() );
+        continue;
       }
       kDebug() << "unknown command: " << cmd;
     }

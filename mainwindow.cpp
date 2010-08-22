@@ -84,7 +84,7 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent* event)
 {
   qApp->quit();
-  event->ignore();
+  event->accept();
 }
 
 void MainWindow::gotNewConnection(ConnectionObject* object)
