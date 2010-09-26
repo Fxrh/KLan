@@ -28,6 +28,7 @@
 #include "model/conitem.h"
 #include "klansettings.h"
 #include "settingsdialog.h"
+#include "sendingfiles/sendfiles.h"
 #include <QListView>
 #include <QLabel>
 #include <KLineEdit>
@@ -55,10 +56,12 @@ MainWindow::MainWindow(QWidget* parent)
   m_chatMap = new QMap<QString, ChatWindow*>();
   m_contextMenu = 0; // will be created if needed
   m_signalMapper = new QSignalMapper(this);
+  m_sendFiles = 0;
   connect( m_conManager, SIGNAL(sigNewConnection(ConnectionObject*)), this, SLOT(gotNewConnection(ConnectionObject*)) );
   connect( m_conManager, SIGNAL(sigConnectionUpdated(ConnectionObject*)), this, SLOT(gotConnectionUpdated(ConnectionObject*)) );
   connect( m_conManager, SIGNAL(sigChatMessage(QString,ConnectionObject*)), this, SLOT(gotChatMessage(QString,ConnectionObject*)) );
   connect( m_conManager, SIGNAL(sigShortMessage(QString,ConnectionObject*)), this, SLOT(gotShortMessage(QString,ConnectionObject*)) );
+  connect( m_conManager, SIGNAL(sigFile(quint16,QString,int,ConnectionObject*)), this, SLOT(gotFileMessage(quint16,QString,int,ConnectionObject*)) );
   connect( m_connectBtn, SIGNAL(clicked()), this, SLOT(tryConnect()) );
   connect( m_startServer, SIGNAL(clicked()), this, SLOT(startServer()) );
   connect( m_chNameBtn, SIGNAL(clicked()), this, SLOT(changeName()) );
@@ -73,17 +76,19 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+  delete m_sendFiles;
   qDeleteAll(*m_chatMap);
   m_chatMap->clear();
   delete m_chatMap;
   KLanSettings::setMyPort(m_myPortEdit->text().toUInt());
   KLanSettings::setName(m_nameLb->text());
   KLanSettings::self()->writeConfig();
+  kDebug();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-  qApp->quit();
+//  qApp->quit();
   event->accept();
 }
 
@@ -197,6 +202,14 @@ void MainWindow::gotShortMessage(QString message, ConnectionObject* connection)
   KNotification::event("shortmessage", "Short Message", QString("%1 says: %2").arg(name).arg(message), QPixmap(), this, KNotification::Persistent );
 }
 
+void MainWindow::gotFileMessage(quint16 port, QString name, int fileSize, ConnectionObject* connection)
+{
+  if( !m_sendFiles ){
+    m_sendFiles = new SendFiles();
+  }
+  m_sendFiles->getFile(port, name, fileSize, connection);
+}
+
 void MainWindow::showContextMenu(QPoint point)
 {
   kDebug();
@@ -213,6 +226,10 @@ void MainWindow::showContextMenu(QPoint point)
       connect( action, SIGNAL(triggered()), m_signalMapper, SLOT(map()) );
       m_signalMapper->setMapping(action, i);
     }
+    m_contextMenu->addSeparator();
+    QAction* action = new QAction("Send File...", m_contextMenu);
+    m_contextMenu->addAction(action);
+    connect( action, SIGNAL(triggered()), this, SLOT(sendFile()) );
   }
   m_contextMenu->exec(m_view->mapToGlobal(point));
 }
@@ -263,6 +280,23 @@ void MainWindow::sendShortMessage(int id)
     kDebug() << "Error: we got a null pointer object";
   }
   m_conManager->sendShortMessage( KLanSettings::shortMsgList()[id], object );
+}
+
+void MainWindow::sendFile()
+{
+  ConnectionObject* object = m_model->getConnection( m_filter->mapToSource(m_view->currentIndex()) );
+  if( object == 0 ){
+    kDebug() << "Error: we got a null pointer object";
+  }
+  if( !m_sendFiles ){
+    m_sendFiles = new SendFiles();
+  }
+  int fileSize;
+  QString fileName;
+  quint16 port = m_sendFiles->sendFile(fileName, fileSize);
+  if( port != 0 ){
+    m_conManager->sendFileMessage(port, fileName, fileSize, object );
+  }
 }
 
 void MainWindow::setup()

@@ -69,7 +69,7 @@ bool ClientConnection::sendMessage(const QString &message)
     return false;
   }
   kDebug() << "Send data to " << m_socket->peerAddress().toString() << ":"
-      << m_socket->peerPort() << " : " << message;
+      << m_socket->peerPort() << " :\n " << message;
   QDataStream out( m_socket );
   out.setVersion(QDataStream::Qt_4_6);
   out << message;

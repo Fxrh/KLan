@@ -11,7 +11,6 @@ set( KLan_SRCS main.cpp
                chatwindow.cpp
                trayicon.cpp
                settingsdialog.cpp
-               sendfiles.cpp
                model/conmodel.cpp
                model/confilter.cpp
                model/condelegate.cpp
@@ -22,9 +21,12 @@ set( KLan_SRCS main.cpp
                connection/client.cpp
                connection/clientconnection.cpp
                connection/serverconnection.cpp
-               connection/sendserver.cpp
-               connection/sendclient.cpp
                connection/def.h
+               sendingfiles/sendclient.cpp
+               sendingfiles/sendserver.cpp
+               sendingfiles/sendfiles.cpp
+               sendingfiles/senditem.cpp
+               widgets/sizedeplabel.cpp
                )
          
 set( KLan_SOUND data/sounds/klan_connect.ogg

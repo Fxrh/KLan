@@ -49,6 +49,7 @@ class Server : public QObject
     void sigShortMessage( QString message, QString hostIp, quint16 serverPort );
     void sigServer( quint16 clientPort, QString ip, quint16 serverPort );
     void sigName( QString name, QString hostIp, quint16 serverPort );
+    void sigFile( quint16 filePort, QString fileName, int fileSize, QString hostIp, quint16 serverPort );
     
   private slots:
     void gotNewMessage();

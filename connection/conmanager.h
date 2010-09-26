@@ -44,6 +44,7 @@ class ConManager : public QObject
   public slots:
     void sendChatMessage( QString message, ConnectionObject* connection );
     void sendShortMessage( QString message, ConnectionObject* connection );
+    void sendFileMessage( quint16 filePort, QString fileName, int fileSize, ConnectionObject* connection );
     bool startBroadcast();
     void stopBroadcast();
     
@@ -55,6 +56,7 @@ protected:
     void sigConnectionUpdated( ConnectionObject* object );
     void sigChatMessage( QString message, ConnectionObject* connection );
     void sigShortMessage( QString message, ConnectionObject* connection );
+    void sigFile( quint16 filePort, QString fileName, int fileSize, ConnectionObject* connection );
     
   private slots:
     void serverGotConnected( QString ip, quint16 serverPort );
@@ -65,6 +67,7 @@ protected:
     void gotChatMessage( QString message, QString ip, quint16 serverPort );
     void gotShortMessage( QString message, QString ip, quint16 serverPort );
     void gotName( QString name, QString ip, quint16 serverPort );
+    void gotFile( quint16 filePort, QString fileName, int fileSize, QString ip, quint16 serverPort );
     
   private:
     int findConnection(const QString& ip, quint16 port, bool portIsClient=true );

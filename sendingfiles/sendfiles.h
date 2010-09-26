@@ -17,28 +17,36 @@
  *                                                                        *
  **************************************************************************/ 
 
-#ifndef SENDCLIENT_H
-#define SENDCLIENT_H
+#ifndef SENDFILES_H
+#define SENDFILES_H
 
-#include <QObject>
+#include <QWidget>
 
-class QTcpSocket;
-class QFile;
+class QLabel;
+class QVBoxLayout;
+class QScrollArea;
 
-class SendClient : public QObject
+class ConnectionObject;
+class SendItem;
+
+class SendFiles : public QWidget
 {
     Q_OBJECT
   public:
-    SendClient( QObject* parent=0);
-    bool tryConnect(const QString& fileName, const QString& ip, quint16 port);
+    SendFiles( QWidget* parent=0 );
+    ~SendFiles();
     
-  private slots:
-    void gotData();
-    void finished();
+  public slots:
+    quint16 sendFile(QString& fileName, int& fileSize);
+    void getFile( quint16 filePort, const QString& fileName, int fileSize, ConnectionObject* connection );
     
   private:
-    QFile* m_file;
-    QTcpSocket* m_socket;
+    QLabel* m_nameLabel;
+    QScrollArea* m_itemArea;
+    QVBoxLayout* m_itemLayout;
+    QWidget* m_itemWidget;
+    QVBoxLayout* m_layout;
+    QList<SendItem*>* m_list;
 };
 
-#endif //SENDCLIENT_H
+#endif //SENDFILES_H

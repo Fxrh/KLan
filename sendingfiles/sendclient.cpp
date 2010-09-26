@@ -17,54 +17,66 @@
  *                                                                        *
  **************************************************************************/ 
 
-#include <QTcpServer>
-#include <QTcpSocket>
 #include <QFile>
-#include <QDebug>
-#include "sendserver.h"
+#include <QTcpSocket>
+#include <QApplication>
+#include <KDebug>
+#include "sendclient.h"
 
-SendServer::SendServer(QObject* parent)
+SendClient::SendClient(QObject* parent)
   : QObject(parent)
 {
-  m_server = new QTcpServer(this);
-  m_socket = 0;
   m_file = 0;
+  m_socket = new QTcpSocket(this);
+  m_totalSize = 0;
+  m_remainingSize = 0;
 }
 
-quint16 SendServer::start(const QString& fileName)
+bool SendClient::tryConnect(const QString& fileName, int fileSize, const QString& ip, quint16 port)
 {
   if( m_file != 0 ){
-    return 0;
+    return false;
   }
   m_file = new QFile(fileName);
-  if( !m_file->open(QIODevice::ReadOnly) ){
-    return 0;
+  if( !m_file->open(QIODevice::WriteOnly) ){
+    return false;
   }
-  if( !m_server->listen() ){
-    return 0;
-  }
-  connect( m_server, SIGNAL(newConnection()), this, SLOT(gotConnection()) );
-  return m_server->serverPort();
+  m_totalSize = fileSize;
+  m_remainingSize = fileSize;
+  m_socket->connectToHost(ip, port);
+  connect( m_socket, SIGNAL(readyRead()), this, SLOT(gotData()) );
+  connect( m_socket, SIGNAL(disconnected()), this, SLOT(finished()) );
+  return true;
 }
 
-void SendServer::gotConnection()
+int SendClient::totalSize()
 {
-  m_socket = m_server->nextPendingConnection();
-  m_server->close();
-  QDataStream inStream(m_file);
-  inStream.setVersion(QDataStream::Qt_4_6);
-  QDataStream outStream(m_socket);
-  outStream.setVersion(QDataStream::Qt_4_6);
-  outStream << inStream;
-  connect( m_socket, SIGNAL(disconnected()), this, SLOT(finished()));
-  m_socket->disconnectFromHost();
-  qDebug() << "File sent";
+  if( m_file ){
+    return m_totalSize;
+  }
+  return 0;
 }
 
-void SendServer::finished()
+int SendClient::remainingSize()
 {
-  m_socket->deleteLater();
+  if( m_file ){
+    return m_remainingSize;
+  }
+  return 0;
+}
+
+void SendClient::gotData()
+{
+  m_remainingSize -= m_file->write(m_socket->readAll());
+}
+
+void SendClient::finished()
+{
+  while( !m_socket->atEnd() ){
+    qApp->processEvents();
+  }
+  m_remainingSize = 0;
+  m_socket->close();
   m_file->close();
-  delete m_file;
-  this->deleteLater();
+  kDebug();
 }

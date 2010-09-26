@@ -17,45 +17,34 @@
  *                                                                        *
  **************************************************************************/ 
 
-#include <QFile>
-#include <QTcpSocket>
-#include "sendclient.h"
+#ifndef SENDSERVER_H
+#define SENDSERVER_H
 
-SendClient::SendClient(QObject* parent)
-  : QObject(parent)
-{
-  m_file = 0;
-  m_socket = new QTcpSocket(this);
-}
+#include <QObject>
 
-bool SendClient::tryConnect(const QString& fileName, const QString& ip, quint16 port)
-{
-  if( m_file != 0 ){
-    return false;
-  }
-  m_file = new QFile(fileName);
-  if( !m_file->open(QIODevice::WriteOnly) ){
-    return false;
-  }
-  m_socket->connectToHost(ip, port);
-  connect( m_socket, SIGNAL(readyRead()), this, SLOT(gotData()) );
-  connect( m_socket, SIGNAL(disconnected()), this, SLOT(finished()) );
-  return true;
-}
+class QTcpServer;
+class QTcpSocket;
+class QFile;
 
-void SendClient::gotData()
+class SendServer : public QObject
 {
-  QDataStream inStream(m_socket);
-  inStream.setVersion(QDataStream::Qt_4_6);
-  QDataStream outStream(m_socket);
-  outStream.setVersion(QDataStream::Qt_4_6);
-  outStream << inStream;
-}
+    Q_OBJECT
+  public:
+    SendServer(QObject* parent=0);
+    quint16 start(const QString& fileName, int& fileSize);
+    int totalSize();
+    int remainingSize();
+    
+  private slots:
+    void gotConnection();
+    void finished();
+    
+  private:
+    QTcpServer* m_server;
+    QTcpSocket* m_socket;
+    QFile* m_file;
+    int m_fileSize;
+    int m_remainingSize;
+};
 
-void SendClient::finished()
-{
-  m_socket->deleteLater();
-  m_file->close();
-  m_file->deleteLater();
-  this->deleteLater();
-}
+#endif //SENDSERVER_H

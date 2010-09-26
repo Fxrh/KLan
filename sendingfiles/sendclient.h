@@ -17,30 +17,32 @@
  *                                                                        *
  **************************************************************************/ 
 
-#ifndef SENDSERVER_H
-#define SENDSERVER_H
+#ifndef SENDCLIENT_H
+#define SENDCLIENT_H
 
 #include <QObject>
 
-class QTcpServer;
 class QTcpSocket;
 class QFile;
 
-class SendServer : public QObject
+class SendClient : public QObject
 {
     Q_OBJECT
   public:
-    SendServer(QObject* parent=0);
-    quint16 start(const QString& fileName);
+    SendClient( QObject* parent=0);
+    bool tryConnect(const QString& fileName, int fileSize, const QString& ip, quint16 port);
+    int totalSize();
+    int remainingSize();
     
   private slots:
-    void gotConnection();
+    void gotData();
     void finished();
     
   private:
-    QTcpServer* m_server;
-    QTcpSocket* m_socket;
     QFile* m_file;
+    QTcpSocket* m_socket;
+    int m_totalSize;
+    int m_remainingSize;
 };
 
-#endif //SENDSERVER_H
+#endif //SENDCLIENT_H
