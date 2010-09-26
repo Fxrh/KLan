@@ -75,7 +75,6 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-  delete m_sendFiles;
   qDeleteAll(*m_chatMap);
   m_chatMap->clear();
   delete m_chatMap;
@@ -84,11 +83,11 @@ MainWindow::~MainWindow()
   KLanSettings::self()->writeConfig();
 }
 
-void MainWindow::closeEvent(QCloseEvent* event)
-{
-//  qApp->quit();
-  event->accept();
-}
+//void MainWindow::closeEvent(QCloseEvent* event)
+//{
+////  qApp->quit();
+//  event->accept();
+//}
 
 void MainWindow::gotNewConnection(ConnectionObject* object)
 {
@@ -198,7 +197,7 @@ void MainWindow::gotChatMessage(QString message, ConnectionObject *connection)
 void MainWindow::gotFileMessage(quint16 port, QString name, int fileSize, ConnectionObject* connection)
 {
   if( !m_sendFiles ){
-    m_sendFiles = new SendFiles();
+    m_sendFiles = new SendFiles(this);
   }
   m_sendFiles->getFile(port, name, fileSize, connection);
 }
@@ -289,7 +288,7 @@ void MainWindow::sendFile()
     qDebug() << "sendFile Error: we got a null pointer object";
   }
   if( !m_sendFiles ){
-    m_sendFiles = new SendFiles();
+    m_sendFiles = new SendFiles(this);
   }
   int fileSize;
   QString fileName;
