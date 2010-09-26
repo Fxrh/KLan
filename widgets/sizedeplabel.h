@@ -17,30 +17,46 @@
  *                                                                        *
  **************************************************************************/ 
 
-#include <QApplication>
-//#include <KAboutData>
-//#include <KCmdLineArgs>
-//#include <KLocale>
+#ifndef SIZEDEPLABEL_H
+#define SIZEDEPLABEL_H
 
-#include "mainwindow.h"
+#include <QLabel>
+#include <QSize>
+#include <QString>
 
-int main( int argc, char* argv[] )
+class QFontMetrics;
+
+class SizeDepLabel : public QLabel
+/* This label class shorts the content of it rather than increasing the
+   sizeHint and thereby changing the size of the window, if the text is
+   too long. If shortened, the text ends with "...". The minimum size is
+   set by setStandardSize().
+   */
 {
-//  KAboutData aboutData( "klan",
-//                        0,
-//                        ki18n("KLan"),
-//                        "0.1",
-//                        ki18n("A lan communication tool for KDE"),
-//                        KAboutData::License_GPL_V3,
-//                        ki18n( "(c) 2010 Felix Rohrbach" ),
-//                        ki18n(""), // Futher description
-//                        "", // Website
-//                        "fxrh@gmx.de" );
-  
-//  KCmdLineArgs::init( argc, argv, &aboutData );
-  QApplication app(argc, argv);
-  app.setApplicationName("QLan");
-  app.setQuitOnLastWindowClosed(true);
-  MainWindow window;
-  return app.exec();
-}
+    Q_OBJECT
+  public:
+    SizeDepLabel( int standardWidth, QWidget* parent = 0, Qt::WindowFlags f = 0 );
+    SizeDepLabel( const QString& text, int standardWidth, QWidget* parent = 0, Qt::WindowFlags f = 0 );
+    ~SizeDepLabel();
+    void setStandardSize( int width );
+    
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
+    QSize minimumSize();
+    int minimumWidth();
+    void setFont( const QFont& font );
+    
+  public slots:
+    void setText( const QString& text );
+    
+  protected:
+    void resizeEvent( QResizeEvent* event );
+    
+  private:
+    int sizeHintWidth;
+    QFontMetrics* labelFontMetrics;
+    QString* m_text;
+};
+
+#endif //SIZEDEPLABEL_H
+    

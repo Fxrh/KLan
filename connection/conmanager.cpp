@@ -51,6 +51,7 @@ ConManager::ConManager( QObject* parent )
   connect( m_server, SIGNAL(sigChatMessage(QString,QString,quint16)), this, SLOT(gotChatMessage(QString,QString,quint16)) );
   connect( m_server, SIGNAL(sigShortMessage(QString,QString,quint16)), this, SLOT(gotShortMessage(QString,QString,quint16)) );
   connect( m_server, SIGNAL(sigName(QString,QString,quint16)), this, SLOT(gotName(QString,QString,quint16)) );
+  connect( m_server, SIGNAL(sigFile(quint16,QString,int,QString,quint16)), this, SLOT(gotFile(quint16,QString,int,QString,quint16)) );
 }
 
 ConManager::~ConManager()
@@ -125,6 +126,19 @@ void ConManager::sendShortMessage(QString message, ConnectionObject *connection)
     return;
   }
   m_client->sendShortMessage( message, connection->getIp(), connection->getClientPort() );
+}
+
+void ConManager::sendFileMessage(quint16 filePort, QString fileName, int fileSize, ConnectionObject *connection)
+{
+  if( !m_conList->contains(connection) ){
+    qDebug() << "sendFileMess: This is no legal connection";
+    return;
+  }
+  if( !connection->isConnected() ){
+    qDebug() << "sendFileMess: Connection is offline";
+    return;
+  }
+  m_client->sendFileMessage( filePort, fileName, fileSize, connection->getIp(), connection->getClientPort() );
 }
 
 bool ConManager::startBroadcast()
@@ -280,6 +294,14 @@ void ConManager::gotName(QString name, QString ip, quint16 serverPort)
   int num = findConnection( ip, serverPort, false );
   if( num != -1 ){
     (*m_conList)[num]->changeName(name);
+  }
+}
+
+void ConManager::gotFile(quint16 filePort, QString fileName, int fileSize, QString ip, quint16 serverPort)
+{
+  int num = findConnection( ip, serverPort, false );
+  if( num != -1 ){
+    emit sigFile( filePort, fileName, fileSize, m_conList->at(num) );
   }
 }
 

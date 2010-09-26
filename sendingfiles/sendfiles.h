@@ -17,30 +17,36 @@
  *                                                                        *
  **************************************************************************/ 
 
-#include <QApplication>
-//#include <KAboutData>
-//#include <KCmdLineArgs>
-//#include <KLocale>
+#ifndef SENDFILES_H
+#define SENDFILES_H
 
-#include "mainwindow.h"
+#include <QWidget>
 
-int main( int argc, char* argv[] )
+class QLabel;
+class QVBoxLayout;
+class QScrollArea;
+
+class ConnectionObject;
+class SendItem;
+
+class SendFiles : public QWidget
 {
-//  KAboutData aboutData( "klan",
-//                        0,
-//                        ki18n("KLan"),
-//                        "0.1",
-//                        ki18n("A lan communication tool for KDE"),
-//                        KAboutData::License_GPL_V3,
-//                        ki18n( "(c) 2010 Felix Rohrbach" ),
-//                        ki18n(""), // Futher description
-//                        "", // Website
-//                        "fxrh@gmx.de" );
-  
-//  KCmdLineArgs::init( argc, argv, &aboutData );
-  QApplication app(argc, argv);
-  app.setApplicationName("QLan");
-  app.setQuitOnLastWindowClosed(true);
-  MainWindow window;
-  return app.exec();
-}
+    Q_OBJECT
+  public:
+    SendFiles( QWidget* parent=0 );
+    ~SendFiles();
+    
+  public slots:
+    quint16 sendFile(QString& fileName, int& fileSize);
+    void getFile( quint16 filePort, const QString& fileName, int fileSize, ConnectionObject* connection );
+    
+  private:
+    QLabel* m_nameLabel;
+    QScrollArea* m_itemArea;
+    QVBoxLayout* m_itemLayout;
+    QWidget* m_itemWidget;
+    QVBoxLayout* m_layout;
+    QList<SendItem*>* m_list;
+};
+
+#endif //SENDFILES_H

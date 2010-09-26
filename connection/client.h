@@ -42,6 +42,7 @@ class Client : public QObject
     void sendShortMessage( const QString& message, const QString& ip, quint16 port );
     void sendServerInfo( quint16 serverPort, const QString& ip, quint16 port );
     void sendMyName( const QString& name );
+    void sendFileMessage( quint16 filePort, const QString& fileName, int fileSize, const QString& ip, quint16 port );
     
   signals:
     void newConnection( QString ip, quint16 port );

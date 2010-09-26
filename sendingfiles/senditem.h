@@ -17,30 +17,38 @@
  *                                                                        *
  **************************************************************************/ 
 
-#include <QApplication>
-//#include <KAboutData>
-//#include <KCmdLineArgs>
-//#include <KLocale>
+#ifndef SENDITEM_H
+#define SENDITEM_H
 
-#include "mainwindow.h"
+#include <QWidget>
 
-int main( int argc, char* argv[] )
+class QVBoxLayout;
+class SizeDepLabel;
+class QProgressBar;
+class SendClient;
+class SendServer;
+
+class SendItem : public QWidget
 {
-//  KAboutData aboutData( "klan",
-//                        0,
-//                        ki18n("KLan"),
-//                        "0.1",
-//                        ki18n("A lan communication tool for KDE"),
-//                        KAboutData::License_GPL_V3,
-//                        ki18n( "(c) 2010 Felix Rohrbach" ),
-//                        ki18n(""), // Futher description
-//                        "", // Website
-//                        "fxrh@gmx.de" );
-  
-//  KCmdLineArgs::init( argc, argv, &aboutData );
-  QApplication app(argc, argv);
-  app.setApplicationName("QLan");
-  app.setQuitOnLastWindowClosed(true);
-  MainWindow window;
-  return app.exec();
-}
+  public:
+    SendItem( QWidget* parent=0 );
+    
+    quint16 sendFile(const QString& fileName, int& fileSize);
+    bool getFile(const QString& fileName, int fileSize, const QString& ip, quint16 port);
+    
+  protected:
+    void timerEvent(QTimerEvent* event);
+    
+  private:
+    bool m_sending;
+    SendClient* m_client;
+    SendServer* m_server;
+    int m_progressSize;
+    int m_timer;
+    
+    SizeDepLabel* m_fileNameLb;
+    QProgressBar* m_progressBar;
+    QVBoxLayout* m_mainLayout;
+};
+
+#endif //SENDITEM_H

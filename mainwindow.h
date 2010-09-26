@@ -37,6 +37,7 @@ class ConDelegate;
 class ConnectionObject;
 class TrayIcon;
 class ChatWindow;
+class SendFiles;
 
 class MainWindow : public QMainWindow
 {
@@ -57,11 +58,13 @@ class MainWindow : public QMainWindow
     ChatWindow* openChat( ConnectionObject* object );
     void deleteChat( ChatWindow* window );
     void gotChatMessage( QString message, ConnectionObject* connection );
+    void gotFileMessage( quint16 port, QString name, int fileSize, ConnectionObject* connection);
     void showContextMenu( QPoint point );
     void changeName();
     void showConfigDialog();
     void showAbout();
     void sendShortMessage(int id);
+    void sendFile();
     
   private:
     void setup();
@@ -72,6 +75,7 @@ class MainWindow : public QMainWindow
     ConFilter* m_filter;
     ConDelegate* m_delegate;
     TrayIcon* m_trayIcon;
+    SendFiles* m_sendFiles;
     //QLabel * m_connectLb;
     QLabel* m_nameLb;
     QPushButton* m_chNameBtn;

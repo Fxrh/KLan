@@ -124,6 +124,19 @@ void Server::gotNewMessage()
         QString msg = message.right( message.length()-message.indexOf(' ')-1 );
         qDebug() << "Name:" << msg;
         emit sigName(msg, connection->getIp(), connection->getPort() );
+        continue;
+      }
+      if( cmd == connection::Mess_File ){
+        bool ok1;
+        bool ok2;
+        quint16 port = (quint16) message.section(' ', 1, 1).toUInt(&ok1);
+        int size = message.section(' ', 2, 2).toInt(&ok2);
+        QString name = message.section(' ', 3);
+        if( ok1 && ok2 ){
+          emit sigFile(port, name, size, connection->getIp(), connection->getPort() );
+          qDebug() << "File: " << port << name;
+        }
+        continue;
       }
       qDebug() << "unknown command: " << cmd;
     }

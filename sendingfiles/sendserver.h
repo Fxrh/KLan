@@ -17,30 +17,34 @@
  *                                                                        *
  **************************************************************************/ 
 
-#include <QApplication>
-//#include <KAboutData>
-//#include <KCmdLineArgs>
-//#include <KLocale>
+#ifndef SENDSERVER_H
+#define SENDSERVER_H
 
-#include "mainwindow.h"
+#include <QObject>
 
-int main( int argc, char* argv[] )
+class QTcpServer;
+class QTcpSocket;
+class QFile;
+
+class SendServer : public QObject
 {
-//  KAboutData aboutData( "klan",
-//                        0,
-//                        ki18n("KLan"),
-//                        "0.1",
-//                        ki18n("A lan communication tool for KDE"),
-//                        KAboutData::License_GPL_V3,
-//                        ki18n( "(c) 2010 Felix Rohrbach" ),
-//                        ki18n(""), // Futher description
-//                        "", // Website
-//                        "fxrh@gmx.de" );
-  
-//  KCmdLineArgs::init( argc, argv, &aboutData );
-  QApplication app(argc, argv);
-  app.setApplicationName("QLan");
-  app.setQuitOnLastWindowClosed(true);
-  MainWindow window;
-  return app.exec();
-}
+    Q_OBJECT
+  public:
+    SendServer(QObject* parent=0);
+    quint16 start(const QString& fileName, int& fileSize);
+    int totalSize();
+    int remainingSize();
+    
+  private slots:
+    void gotConnection();
+    void finished();
+    
+  private:
+    QTcpServer* m_server;
+    QTcpSocket* m_socket;
+    QFile* m_file;
+    int m_fileSize;
+    int m_remainingSize;
+};
+
+#endif //SENDSERVER_H

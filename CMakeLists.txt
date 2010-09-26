@@ -28,6 +28,11 @@ set( QLan_SRCS main.cpp
                connection/clientconnection.cpp
                connection/serverconnection.cpp
                connection/def.h
+               sendingfiles/sendclient.cpp
+               sendingfiles/sendserver.cpp
+               sendingfiles/sendfiles.cpp
+               sendingfiles/senditem.cpp
+               widgets/sizedeplabel.cpp
                )
                
 set( QLan_MOC_HDRS mainwindow.h

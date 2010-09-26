@@ -4,7 +4,9 @@ TEMPLATE = app
 TARGET = qlan
 DEPENDPATH += . \
               connection \
-              model 
+              model \
+              sendingfiles \
+              widgets
 
 INCLUDEPATH += . connection model
 
@@ -25,7 +27,12 @@ HEADERS += chatwindow.h \
            model/condelegate.h \
            model/confilter.h \
            model/conitem.h \
-           model/conmodel.h 
+           model/conmodel.h \
+           sendingfiles/sendclient.h \
+           sendingfiles/sendserver.h \
+           sendingfiles/senditem.h \
+           sendingfiles/sendfiles.h \
+           widgets/sizedeplabel.h
 
 SOURCES += chatwindow.cpp \
            klansettings.cpp \
@@ -44,5 +51,10 @@ SOURCES += chatwindow.cpp \
            model/confilter.cpp \
            model/conitem.cpp \
            model/conmodel.cpp \
+           sendingfiles/sendclient.cpp \
+           sendingfiles/sendserver.cpp \
+           sendingfiles/senditem.cpp \
+           sendingfiles/sendfiles.cpp \
+           widgets/sizedeplabel.cpp
 
 RESOURCES += klan.qrc

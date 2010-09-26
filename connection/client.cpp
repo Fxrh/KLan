@@ -120,6 +120,16 @@ void Client::sendMyName(const QString &name)
   }
 }
 
+void Client::sendFileMessage(quint16 filePort, const QString& fileName, int fileSize, const QString& ip, quint16 port)
+{
+  ClientConnection* connection = findConnection( ip, port );
+  if( !connection ){
+    qDebug() << "Host/Ip not found: " << ip << port;
+    return;
+  }
+  connection->sendMessage(QString(connection::Mess_File+" "+QString::number(filePort)+" "+QString::number(fileSize)+" "+fileName));
+}
+
 void Client::timerEvent(QTimerEvent *event)
 {
   if( event->timerId() == m_removeInactiveTimer ){

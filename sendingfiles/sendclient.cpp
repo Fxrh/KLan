@@ -17,30 +17,66 @@
  *                                                                        *
  **************************************************************************/ 
 
+#include <QFile>
+#include <QTcpSocket>
 #include <QApplication>
-//#include <KAboutData>
-//#include <KCmdLineArgs>
-//#include <KLocale>
+#include <QDebug>
+#include "sendclient.h"
 
-#include "mainwindow.h"
-
-int main( int argc, char* argv[] )
+SendClient::SendClient(QObject* parent)
+  : QObject(parent)
 {
-//  KAboutData aboutData( "klan",
-//                        0,
-//                        ki18n("KLan"),
-//                        "0.1",
-//                        ki18n("A lan communication tool for KDE"),
-//                        KAboutData::License_GPL_V3,
-//                        ki18n( "(c) 2010 Felix Rohrbach" ),
-//                        ki18n(""), // Futher description
-//                        "", // Website
-//                        "fxrh@gmx.de" );
-  
-//  KCmdLineArgs::init( argc, argv, &aboutData );
-  QApplication app(argc, argv);
-  app.setApplicationName("QLan");
-  app.setQuitOnLastWindowClosed(true);
-  MainWindow window;
-  return app.exec();
+  m_file = 0;
+  m_socket = new QTcpSocket(this);
+  m_totalSize = 0;
+  m_remainingSize = 0;
+}
+
+bool SendClient::tryConnect(const QString& fileName, int fileSize, const QString& ip, quint16 port)
+{
+  if( m_file != 0 ){
+    return false;
+  }
+  m_file = new QFile(fileName);
+  if( !m_file->open(QIODevice::WriteOnly) ){
+    return false;
+  }
+  m_totalSize = fileSize;
+  m_remainingSize = fileSize;
+  m_socket->connectToHost(ip, port);
+  connect( m_socket, SIGNAL(readyRead()), this, SLOT(gotData()) );
+  connect( m_socket, SIGNAL(disconnected()), this, SLOT(finished()) );
+  return true;
+}
+
+int SendClient::totalSize()
+{
+  if( m_file ){
+    return m_totalSize;
+  }
+  return 0;
+}
+
+int SendClient::remainingSize()
+{
+  if( m_file ){
+    return m_remainingSize;
+  }
+  return 0;
+}
+
+void SendClient::gotData()
+{
+  m_remainingSize -= m_file->write(m_socket->readAll());
+}
+
+void SendClient::finished()
+{
+  while( !m_socket->atEnd() ){
+    qApp->processEvents();
+  }
+  m_remainingSize = 0;
+  m_socket->close();
+  m_file->close();
+  qDebug() << "SendClient: finished";
 }
