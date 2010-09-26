@@ -29,7 +29,7 @@
 #include "sendfiles.h"
 
 SendFiles::SendFiles(QWidget* parent)
-  : QWidget(parent)
+  : QWidget(parent, Qt::Window)
 {
   m_nameLabel = new QLabel("Sending/Receiving Files");
   QFont font;
@@ -37,9 +37,10 @@ SendFiles::SendFiles(QWidget* parent)
   m_nameLabel->setFont(font);
   m_itemWidget = new QWidget();
   m_itemArea = new QScrollArea();
-  m_itemArea->setWidget(m_itemWidget);
+  m_itemArea->setWidgetResizable(true);
   m_itemLayout = new QVBoxLayout();
   m_itemWidget->setLayout(m_itemLayout);
+  m_itemArea->setWidget(m_itemWidget);
   m_layout = new QVBoxLayout();
   m_layout->addWidget(m_nameLabel);
   m_layout->addWidget(m_itemArea);
@@ -51,7 +52,9 @@ SendFiles::SendFiles(QWidget* parent)
 
 SendFiles::~SendFiles()
 {
+  qDebug() << "~SendFiles...";
   delete m_list;
+  qDebug() << "~SendFiles.";
 }
 
 quint16 SendFiles::sendFile(QString& fileName, int& fileSize)
@@ -65,6 +68,7 @@ quint16 SendFiles::sendFile(QString& fileName, int& fileSize)
   int port = newItem->sendFile(pathName, fileSize);
   if( port ){
     m_itemLayout->insertWidget(0, newItem);
+    m_itemWidget->resize(m_itemWidget->sizeHint());
   } else {
     qDebug() << "Could not send data: was not able to open port or could not read file";
     QMessageBox::critical(this, "Error: Could not send file", "The application was not able to send your file:\n "
@@ -83,6 +87,7 @@ void SendFiles::getFile(quint16 filePort, const QString& fileName, int fileSize,
   SendItem* newItem = new SendItem();
   if( newItem->getFile(name, fileSize, connection->getIp(), filePort) ){
     m_itemLayout->insertWidget(0, newItem);
+    m_itemWidget->resize(m_itemWidget->sizeHint());
   } else {
     qDebug() << "Could not receive data: was not able to create file";
     QMessageBox::critical(this, "Error: Could not receive file", "The file could not be created.");

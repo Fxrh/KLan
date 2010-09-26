@@ -39,6 +39,7 @@ SendItem::SendItem(QWidget* parent)
   m_mainLayout->addWidget(m_fileNameLb);
   m_mainLayout->addWidget(m_progressBar);
   m_mainLayout->addStretch();
+  setLayout(m_mainLayout);
   
   m_server = 0;
   m_client = 0;

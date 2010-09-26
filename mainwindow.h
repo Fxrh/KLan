@@ -47,7 +47,7 @@ class MainWindow : public KXmlGuiWindow
     ~MainWindow();
     
   protected:
-    void closeEvent(QCloseEvent* event);
+//    void closeEvent(QCloseEvent* event);
     
   private slots:
     void gotNewConnection(ConnectionObject*);
