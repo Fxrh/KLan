@@ -72,7 +72,12 @@ void SendServer::gotConnection()
   m_socket = m_server->nextPendingConnection();
   m_server->close();
   while( !m_file->atEnd() ){
-    m_remainingSize -= m_socket->write(m_file->read(5000));
+    if( !m_socket->flush() ){
+      m_remainingSize -= m_socket->write(m_file->read(5000));
+    }
+    qApp->processEvents();
+  }
+  while( !m_socket->flush() ){
     qApp->processEvents();
   }
   m_remainingSize = 0;

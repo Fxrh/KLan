@@ -75,7 +75,7 @@ void SendClient::finished()
   while( !m_socket->atEnd() ){
     qApp->processEvents();
   }
-  m_remainingSize = 0;
+  //m_remainingSize = 0;
   m_socket->close();
   m_file->close();
   kDebug();
