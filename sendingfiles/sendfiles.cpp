@@ -59,6 +59,7 @@ SendFiles::~SendFiles()
 
 quint16 SendFiles::sendFile(QString& fileName, int& fileSize)
 {
+  show();
   QString pathName = QFileDialog::getOpenFileName(this, "Select a file to send", QDir::homePath());
   if( pathName.isNull() ){
     return 0;
@@ -80,6 +81,7 @@ quint16 SendFiles::sendFile(QString& fileName, int& fileSize)
 
 void SendFiles::getFile(quint16 filePort, const QString& fileName, int fileSize, ConnectionObject* connection)
 {
+  show();
   QString name = QFileDialog::getSaveFileName(this, "Select a place to save", QDir::homePath()+QDir::separator()+fileName);
   if( name.isNull() ){
     return;
